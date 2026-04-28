@@ -1,8 +1,9 @@
+package models.items;
 
 public class PlantSeed extends Item {
 	
-	private char symbol;
-	private int growthTime;
+	private final char symbol;
+	private final int growthTime;
 	
 	public PlantSeed(String name, double price, char symbol, int growthTime) {
 		super(name, price);
@@ -14,20 +15,12 @@ public class PlantSeed extends Item {
 		return symbol;
 	}
 
-	public void setSymbol(char symbol) {
-		this.symbol = symbol;
-	}
-
 	public int getGrowthTime() {
 		return growthTime;
 	}
 
-	public void setGrowthTime(int growthTime) {
-		this.growthTime = growthTime;
+	@Override
+	public String toString() {
+		return String.format("%s Seed [%c] (Growth: %d days) - $%.0f", getName(), symbol, growthTime, getPrice());
 	}
-
-	
-
-	
-	
 }

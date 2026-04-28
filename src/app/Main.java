@@ -1,3 +1,4 @@
+package app;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +10,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
+
+import models.Animal;
+import models.Plant;
+import models.Player;
+import models.PlayerItem;
+import models.User;
+import services.UserFileHandler;
+import services.UserValidator;
+import models.items.AnimalProduct;
+import models.items.FarmProduct;
+import models.items.PlantSeed;
+import models.items.Tool;
+import views.GameMapView;
+import views.GameUIView;
 
 public class Main {
 	
@@ -45,9 +60,9 @@ public class Main {
 		loginOrRegister();
 		
 		maps = new ArrayList<>();
-		maps.add(GameMap.PLANT_FARM_MAP);
-		maps.add(GameMap.HOME_MAP);
-		maps.add(GameMap.ANIMAL_FARM_MAP);
+		maps.add(GameMapView.PLANT_FARM_MAP);
+		maps.add(GameMapView.HOME_MAP);
+		maps.add(GameMapView.ANIMAL_FARM_MAP);
 		
 		player = new Player(currentUser.getUsername(), "");
 		
@@ -106,8 +121,6 @@ public class Main {
             	
             	double price = Double.parseDouble(parts[2].trim());
             	
-            	price = (double) price;
-            	
                 availableSeeds.add(new PlantSeed(name, price, Character.toLowerCase(name.charAt(0)), growthTime));
             }
             
@@ -134,8 +147,6 @@ public class Main {
             	int harvestRate = Integer.parseInt(parts[1].trim());
             	
             	double price = Double.parseDouble(parts[2].trim());
-            	
-            	price = (double) price;
             	
                 availableAnimals.add(new Animal(' ', "", type, "", harvestRate, 0, 0, price, false));
             }
@@ -170,15 +181,15 @@ public class Main {
 	private void displayMap() {
 	    char[][] currMap = maps.get(currMapIndex);
 
-	    currMap[player.getX().getCoordinate()]
-	           [player.getY().getCoordinate()] = 'P';
+	    currMap[player.getPosition().getX()]
+	           [player.getPosition().getY()] = 'P';
 
-	    char[][] infoUI = new char[GameUI.PLAYER_INFO_UI.length][];
-	    for (int i = 0; i < GameUI.PLAYER_INFO_UI.length; i++) {
-	        infoUI[i] = GameUI.PLAYER_INFO_UI[i].clone();
+	    char[][] infoUI = new char[GameUIView.PLAYER_INFO_UI.length][];
+	    for (int i = 0; i < GameUIView.PLAYER_INFO_UI.length; i++) {
+	        infoUI[i] = GameUIView.PLAYER_INFO_UI[i].clone();
 	    }
 
-	    char[][] keybindUI = GameUI.PLAYER_KEYBINDS_UI;
+	    char[][] keybindUI = GameUIView.PLAYER_KEYBINDS_UI;
 
 	    for (int i = 1; i <= 2; i++) {
 	        String line = new String(infoUI[i]);
@@ -235,8 +246,8 @@ public class Main {
 
         char[][] currMap = maps.get(currMapIndex);
 
-        int newX = player.getX().getCoordinate();
-        int newY = player.getY().getCoordinate();
+        int newX = player.getPosition().getX();
+        int newY = player.getPosition().getY();
         
         switch (key) {
             case 'w': 
@@ -285,7 +296,7 @@ public class Main {
             	if (devMode) {
             		for (Tool tool : availableTools) {
                         player.getInventory().add(
-                            new PlayerItem(new Tool(tool.getName(), (int) tool.getPrice(tool.getName())), 1)
+                            new PlayerItem(new Tool(tool.getName(), (int) tool.getPrice()), 1)
                         );
                     }
                     availableTools.clear();
@@ -314,75 +325,35 @@ public class Main {
             				grade
     				);
 
-            		ArrayList<AnimalProduct> tempProducts = new ArrayList<>();
-            		
-            		tempProducts.add(egg);
-            		tempProducts.add(milk);
-            		tempProducts.add(wool);
-            		
-            		for (AnimalProduct tempProduct : tempProducts) {
-            			boolean found = false;
-            			
-            			for (PlayerItem item : player.getInventory()) {
-        					if (item.getItem().getName().equals(tempProduct.getName()) &&
-        						((AnimalProduct) item.getItem()).getGrade() == grade
-        					) {
-        						item.setQuantity(item.getQuantity() + 1);
-        						found = true;
-        					}
-        				}
-        				
-        				if (!found) {
-        					player.getInventory().add(new PlayerItem(tempProduct, 1));
-        				}
-            		}
+            		player.addItem(egg, 1);
+            		player.addItem(milk, 1);
+            		player.addItem(wool, 1);
             	}
             	return;
             case 'k':
             	if (devMode) {
             		PlantSeed wheat = new PlantSeed("Wheat", 50, 'w', 3);
-            		
-            		ArrayList<PlantSeed> tempSeeds = new ArrayList<>();
-            		
-            		tempSeeds.add(wheat);
-            		
-            		for (PlantSeed tempSeed : tempSeeds) {
-            			boolean found = false;
-            			
-            			for (PlayerItem item : player.getInventory()) {
-        					if (item.getItem().getName().equals(tempSeed.getName())) {
-        						item.setQuantity(item.getQuantity() + 10);
-        						found = true;
-        					}
-        				}
-        				
-        				if (!found) {
-        					player.getInventory().add(new PlayerItem(tempSeed, 10));
-        				}
-            		}
+            		player.addItem(wheat, 10);
             	}
             	return;
             case '1':
             	if (devMode) {
             		currMapIndex = 0;
-                    player.getX().setCoordinate(10);  
-                    player.getY().setCoordinate(21);
+                    player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
             	return;
             case '2':
             	if (devMode) {
             		currMapIndex = 1;
-                    player.getX().setCoordinate(10);  
-                    player.getY().setCoordinate(21);
+                    player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
             	return;
             case '3':
             	if (devMode) {
             		currMapIndex = 2;
-                    player.getX().setCoordinate(10);  
-                    player.getY().setCoordinate(21);
+                    player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
             	return;
@@ -401,13 +372,12 @@ public class Main {
         if (checkWall(currMap, newX, newY)) 
         	return;
 
-        currMap[player.getX().getCoordinate()]
-               [player.getY().getCoordinate()] = currTile;
+        currMap[player.getPosition().getX()]
+               [player.getPosition().getY()] = currTile;
 
         currTile = currMap[newX][newY];
 
-        player.getX().setCoordinate(newX);
-        player.getY().setCoordinate(newY);
+        player.getPosition().moveTo(newX, newY);
 
         currMap[newX][newY] = 'P';
         
@@ -443,17 +413,14 @@ public class Main {
     }
     
     private void triggerEvent(int x, int y) {
-//    	char[][] currMap = maps.get(currMapIndex);
     	
     	if (currMapIndex == 1) {
             if (x == 10 && y == 0) {
                 currMapIndex = 0;
-                player.getX().setCoordinate(11);  
-                player.getY().setCoordinate(43);
+                player.getPosition().moveTo(11, 43);
             } else if (x == 16 && y == 43) {
                 currMapIndex = 2;
-                player.getX().setCoordinate(5);
-                player.getY().setCoordinate(0);
+                player.getPosition().moveTo(5, 0);
             } else if (x == 7 && (y == 21 || y == 22)) {
                 initSleep();
             } else if (x == 15 && (y == 16 || y == 17)) {
@@ -464,8 +431,7 @@ public class Main {
         } else if (currMapIndex == 0) {
         	if (x == 11 && y == 43) {
         		currMapIndex = 1;
-                player.getX().setCoordinate(10);  
-                player.getY().setCoordinate(0);
+                player.getPosition().moveTo(10, 0);
         	} else if (x == 4 && (y == 23 || y == 24)) {
                 initFarmStore();
             } else if (currTile == '.') {
@@ -476,8 +442,7 @@ public class Main {
         } else if (currMapIndex == 2) {
         	if (x == 5 && y == 0) {
         		currMapIndex = 1;
-                player.getX().setCoordinate(16);  
-                player.getY().setCoordinate(43);
+                player.getPosition().moveTo(16, 43);
         	} else if (currTile == 'C' || currTile == 'c' || currTile == 'S') {
                 collectAnimal(x, y);
             }
@@ -486,7 +451,7 @@ public class Main {
     
     private void triggerFarmTile (int x, int y, boolean planting) {
     	if (planting) {
-    		if (!checkInventory("Hoe")) {
+    		if (!player.hasItem("Hoe")) {
     			System.out.println("You need a Hoe to plant! Buy one from the tool store.");
     			pause();
     			return;
@@ -533,9 +498,9 @@ public class Main {
         		PlayerItem item = it.next();
         		if (item.getItem() instanceof PlantSeed) {
         			if (item.getItem().getName().equals(selectedSeed.getName())) {
-        				item.setQuantity(item.getQuantity() - 1);
+        				item.removeQuantity(1);
         				
-        				if (item.getQuantity() == 0) {
+        				if (item.isEmpty()) {
         					it.remove();
         				}
         				break;
@@ -575,7 +540,7 @@ public class Main {
     }
     
     private void sleep () {
-    	player.setDay(player.getDay() + 1);
+    	player.advanceDay();
 		updateHarvest();
 		updateGrowthTime();
 		updateFreshness();
@@ -583,33 +548,14 @@ public class Main {
     
     private void updateHarvest () {
 		for (Animal animal : player.getAnimals()) {
-			if (animal.isHarvestable()) continue;
-
-			animal.setHarvestRate(animal.getHarvestRate() - 1);
-			
-			if (animal.getHarvestRate() == 0) {
-				animal.setHarvestable(true);
-				
-				if (animal.getSymbol() == 'c') 
-					animal.setHarvestRate(1);
-				else if (animal.getSymbol() == 'C') 
-					animal.setHarvestRate(2);
-				else if (animal.getSymbol() == 'S') 
-					animal.setHarvestRate(5);
-			}
+			animal.tickHarvest();
 		}
 	}
     
     private void updateGrowthTime () {
     	for (Plant plant : player.getPlants()) {
-    		if (plant.isHarvestable()) continue;
-
-    		plant.setGrowthTime(plant.getGrowthTime() - 1);
-    		
-    		if (plant.getGrowthTime() == 0) {
-    			plant.setHarvestable(true);
-    			
-    			GameMap.PLANT_FARM_MAP[plant.getPlantX()][plant.getPlantY()] = Character.toUpperCase(plant.getSymbol());
+    		if (plant.tickGrowth()) {
+    			GameMapView.PLANT_FARM_MAP[plant.getPosition().getX()][plant.getPosition().getY()] = Character.toUpperCase(plant.getSymbol());
     		}
     	}
     }
@@ -624,9 +570,7 @@ public class Main {
 
                 FarmProduct farmProduct = (FarmProduct) item.getItem();
 
-                farmProduct.setFreshness(farmProduct.getFreshness() - 1);
-
-                if (farmProduct.getFreshness() <= 0) {
+                if (farmProduct.tickFreshness()) {
                     it.remove();
                 }
             }
@@ -697,7 +641,7 @@ public class Main {
                     Animal selectedAnimal = availableAnimals.get(choice - 1);
 
                     if (player.getMoney() >= selectedAnimal.getPrice()) {
-                        player.setMoney(player.getMoney() - selectedAnimal.getPrice());
+                        player.spendMoney(selectedAnimal.getPrice());
                         
                         String name = null;
                         boolean nameTaken;
@@ -774,8 +718,8 @@ public class Main {
 
                 if (choice >= 1 && choice < counter) {
                 	Animal selectedAnimal = player.getAnimals().get(choice - 1);
-                    player.setMoney(player.getMoney() + selectedAnimal.getPrice());
-                    GameMap.ANIMAL_FARM_MAP[selectedAnimal.getAnimalX()][selectedAnimal.getAnimalY()] = ' ';
+                    player.addMoney(selectedAnimal.getPrice());
+                    GameMapView.ANIMAL_FARM_MAP[selectedAnimal.getPosition().getX()][selectedAnimal.getPosition().getY()] = ' ';
                     player.getAnimals().remove(selectedAnimal);
 
                     System.out.println("Sucessfully sold a farm animal!");
@@ -828,7 +772,7 @@ public class Main {
                     		animalProduct.getName(), 
                     		animalProduct.getGrade(), 
                     		item.getQuantity(),
-                    		(double) (animalProduct.getPrice(animalProduct.getName()) * getGradeMultiplier(animalProduct.getGrade()))
+                    		(double) (animalProduct.getPrice() * getGradeMultiplier(animalProduct.getGrade()))
                     );
                 }
             }
@@ -859,16 +803,11 @@ public class Main {
 						}
                 	} while(quantityToSell < 1 || quantityToSell > selectedPlayerItem.getQuantity());
 
-                	player.setMoney(
-                			player.getMoney() + 
-                			(selectedAnimalProduct.getPrice(selectedAnimalProduct.getName()) * getGradeMultiplier(selectedAnimalProduct.getGrade()) * quantityToSell)
+                	player.addMoney(
+                			selectedAnimalProduct.getPrice() * getGradeMultiplier(selectedAnimalProduct.getGrade()) * quantityToSell
                 	);
                 	
-                	player.getInventory().get(selectedIndex).setQuantity(player.getInventory().get(selectedIndex).getQuantity() - quantityToSell);
-                	
-                	if (player.getInventory().get(selectedIndex).getQuantity() == 0) {
-                		player.getInventory().remove(selectedIndex);
-                	}
+                	player.removeItemQuantity(selectedIndex, quantityToSell);
                 	
                     System.out.println("Sucessfully sold an animal product!");
                 } else {
@@ -942,7 +881,7 @@ public class Main {
     		System.out.println("================================================");
             
             for (PlantSeed seed : availableSeeds) {
-            	System.out.printf("| %-3d | %-10s | %-12d | %-10.1f |\n", counter++, seed.getName(), seed.getGrowthTime(), seed.getPrice(seed.getName()));
+            	System.out.printf("| %-3d | %-10s | %-12d | %-10.1f |\n", counter++, seed.getName(), seed.getGrowthTime(), seed.getPrice());
             }
             
             System.out.println("================================================");
@@ -968,30 +907,10 @@ public class Main {
 						}
                     } while(quantity <= 0);
                     
-                    double totalPrice = selectedSeed.getPrice(selectedSeed.getName()) * quantity;
+                    double totalPrice = selectedSeed.getPrice() * quantity;
 
-                    if (player.getMoney() >= totalPrice) {
-                        player.setMoney(player.getMoney() - totalPrice);
-                        
-                        boolean found = false;
-                        
-                        for (PlayerItem item : player.getInventory()) {
-                        	if (item.getItem() instanceof PlantSeed &&
-                        		item.getItem().getName().equals(selectedSeed.getName())
-                        	) {
-                        		item.setQuantity(item.getQuantity() + quantity);
-                        		found = true;
-                        	}
-                        }
-                        
-                        if (!found) {
-                        	player.getInventory().add(
-                        			new PlayerItem(
-                        					selectedSeed,
-                        					quantity
-                        			)
-                        	);
-                        }
+                    if (player.spendMoney(totalPrice)) {
+                        player.addItem(selectedSeed, quantity);
 
                         System.out.printf("Successfully bought %d %s Seeds\n", quantity, selectedSeed.getName());
                     } else {
@@ -1046,7 +965,7 @@ public class Main {
                     		farmProduct.getName(), 
                     		farmProduct.getFreshness(), 
                     		item.getQuantity(),
-                    		(double) (farmProduct.getPrice(farmProduct.getName()) * getFreshnessMultiplier(farmProduct.getFreshness()) * 2)
+                    		(double) (farmProduct.getPrice() * getFreshnessMultiplier(farmProduct.getFreshness()) * 2)
                     );
                 }
             }
@@ -1077,16 +996,11 @@ public class Main {
 						}
                 	} while(quantityToSell < 1 || quantityToSell > selectedPlayerItem.getQuantity());
 
-                	player.setMoney(
-                			player.getMoney() + 
-                			(selectedFarmProduct.getPrice(selectedFarmProduct.getName()) * getFreshnessMultiplier(selectedFarmProduct.getFreshness()) * 2 * quantityToSell)
+                	player.addMoney(
+                			selectedFarmProduct.getPrice() * getFreshnessMultiplier(selectedFarmProduct.getFreshness()) * 2 * quantityToSell
                 	);
                 	
-                	player.getInventory().get(selectedIndex).setQuantity(player.getInventory().get(selectedIndex).getQuantity() - quantityToSell);
-                	
-                	if (player.getInventory().get(selectedIndex).getQuantity() == 0) {
-                		player.getInventory().remove(selectedIndex);
-                	}
+                	player.removeItemQuantity(selectedIndex, quantityToSell);
                 	
                     System.out.println("Sucessfully sold a farm product!");
                 } else {
@@ -1135,7 +1049,7 @@ public class Main {
             System.out.println("=================================");
             
             for (Tool tool : availableTools) {
-            	System.out.printf("| %-3s | %-10s | %-10s |\n", counter++, tool.getName(), tool.getPrice(tool.getName()));
+            	System.out.printf("| %-3s | %-10s | %-10s |\n", counter++, tool.getName(), tool.getPrice());
             }
             
             System.out.println("=================================");
@@ -1148,10 +1062,9 @@ public class Main {
 
                 if (choice >= 1 && choice < counter) {
                     Tool selectedTool = availableTools.get(choice - 1);
-                    int price = (int) selectedTool.getPrice(selectedTool.getName());
+                    int price = (int) selectedTool.getPrice();
 
-                    if (player.getMoney() >= price) {
-                        player.setMoney(player.getMoney() - price);
+                    if (player.spendMoney(price)) {
                         player.getInventory().add(new PlayerItem(new Tool(selectedTool.getName(), price), 1));
                         availableTools.remove(selectedTool);
 
@@ -1171,8 +1084,8 @@ public class Main {
     }
     
     private void insertAnimal(String type, String name) {
-	    int height = GameMap.ANIMAL_FARM_MAP.length;
-	    int width = GameMap.ANIMAL_FARM_MAP[0].length;
+	    int height = GameMapView.ANIMAL_FARM_MAP.length;
+	    int width = GameMapView.ANIMAL_FARM_MAP[0].length;
 	    
 	    int animalX, animalY;
 	    
@@ -1202,11 +1115,11 @@ public class Main {
 	        animalX = rand.nextInt(height);
 	        animalY = rand.nextInt(width);
 
-	        if (GameMap.ANIMAL_FARM_MAP[animalX][animalY] != ' ') continue;
+	        if (GameMapView.ANIMAL_FARM_MAP[animalX][animalY] != ' ') continue;
 
 	        boolean occupied = false;
 	        for (Animal animal : player.getAnimals()) {
-	            if (animal.getAnimalX() == animalX && animal.getAnimalY() == animalY) {
+	            if (animal.getPosition().getX() == animalX && animal.getPosition().getY() == animalY) {
 	                occupied = true;
 	                break;
 	            }
@@ -1215,14 +1128,14 @@ public class Main {
 	        if (!occupied) {
 	            Animal animal = new Animal(symbol, name, type, animalProduct, harvestRate, animalX, animalY, price, true);
 	            player.getAnimals().add(animal);
-	            GameMap.ANIMAL_FARM_MAP[animalX][animalY] = symbol;
+	            GameMapView.ANIMAL_FARM_MAP[animalX][animalY] = symbol;
 	            break;
 	        }
 	    }
 	}
     
     private void insertPlant(PlantSeed selectedSeed, int x, int y) {
-	    Plant plant = new Plant(selectedSeed.getSymbol(), selectedSeed.getName(), x, y, selectedSeed.getGrowthTime(), selectedSeed.getPrice(selectedSeed.getName()), false);
+	    Plant plant = new Plant(selectedSeed.getSymbol(), selectedSeed.getName(), x, y, selectedSeed.getGrowthTime(), selectedSeed.getPrice(), false);
 	    player.getPlants().add(plant);
 	}
     
@@ -1382,7 +1295,7 @@ public class Main {
     
     private void collectAnimal (int animalX, int animalY) {
 		for (Animal animal : player.getAnimals()) {
-	        if (animal.getAnimalX() == animalX && animal.getAnimalY() == animalY) {
+	        if (animal.getPosition().getX() == animalX && animal.getPosition().getY() == animalY) {
 	        	if (!animal.isHarvestable()) break;
 	        	
 	        	int choice = 0;
@@ -1398,38 +1311,25 @@ public class Main {
 	                    sc.nextLine();
 
 	                    if (choice == 1) {
-		        			if (animal.getSymbol() == 'C' && !checkInventory("Bucket")) {
+		        			if (animal.getSymbol() == 'C' && !player.hasItem("Bucket")) {
 		        				System.out.println("You don't have a bucket to get " + possessive(animal.getName()) + " " + animal.getAnimalProduct());
 		        				pause();
 		        				return;
-		        			} else if (animal.getSymbol() == 'S' && !checkInventory("Shears")) {
+		        			} else if (animal.getSymbol() == 'S' && !player.hasItem("Shears")) {
 		        				System.out.println("You don't have shears to get " + possessive(animal.getName()) + " " + animal.getAnimalProduct());
 		        				pause();
 		        				return;
 		        			} else {
 		        				
 		        				AnimalProduct newProduct = new AnimalProduct(
-        								animal.getAnimalProduct(), 
-        								(int) (animal.getPrice() * getGradeMultiplier(grade)), 
-        								grade
-        						);
+    		        						animal.getAnimalProduct(), 
+    		        						(int) (animal.getPrice() * getGradeMultiplier(grade)), 
+    		        						grade
+    		        				);
 		        				
-		        				boolean found = false;
-		        				
-		        				for (PlayerItem item : player.getInventory()) {
-		        					if (item.getItem().getName().equals(newProduct.getName()) &&
-		        						((AnimalProduct) item.getItem()).getGrade() == grade
-		        					) {
-		        						item.setQuantity(item.getQuantity() + 1);
-		        						found = true;
-		        					}
-		        				}
-		        				
-		        				if (!found) {
-		        					player.getInventory().add(new PlayerItem(newProduct, 1));
-		        				}
-		        							
-		        				animal.setHarvestable(false);
+		        				player.addItem(newProduct, 1);
+		        						
+		        				animal.collectProduct();
 		        				break;
 		        			}
 		        		}
@@ -1455,7 +1355,7 @@ public class Main {
         while (it.hasNext()) {
             Plant plant = it.next();
 
-            if (plant.getPlantX() == plantX && plant.getPlantY() == plantY) {
+            if (plant.getPosition().getX() == plantX && plant.getPosition().getY() == plantY) {
 
                 int freshness = 5;
 
@@ -1465,46 +1365,17 @@ public class Main {
                         freshness
                 );
 
-                boolean found = false;
-
-                for (PlayerItem item : player.getInventory()) {
-
-                    if (!(item.getItem() instanceof FarmProduct)) continue;
-
-                    FarmProduct existing = (FarmProduct) item.getItem();
-
-                    if (existing.getName().equals(newProduct.getName()) &&
-                        existing.getFreshness() == freshness) {
-
-                        item.setQuantity(item.getQuantity() + 1);
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    player.getInventory().add(new PlayerItem(newProduct, 1));
-                }
+                player.addItem(newProduct, 1);
 
                 it.remove();
 
-                GameMap.PLANT_FARM_MAP[plantX][plantY] = '.';
+                GameMapView.PLANT_FARM_MAP[plantX][plantY] = '.';
 
                 currTile = '.';
 
                 break;
             }
         }
-    }
-    
-    private boolean checkInventory (String itemName) {
-    	for (PlayerItem item : player.getInventory()) {
-    		if (item.getItem().getName().equals(itemName)) {
-    			return true;
-    		}
-    	}
-    	
-    	return false;
     }
     
     private int getGrade() {
@@ -1622,7 +1493,7 @@ public class Main {
 		String password = sc.nextLine().trim();
 		if (password.equals("0")) return false;
 		
-		User user = User.authenticate(username, password);
+		User user = UserFileHandler.authenticate(username, password);
 		if (user != null) {
 			currentUser = user;
 			System.out.println("Login successful!");
@@ -1654,12 +1525,12 @@ public class Main {
 			
 			if (username.equals("0")) return false;
 			
-			if (!User.isValidUsername(username)) {
+			if (!UserValidator.isValidUsername(username)) {
 				System.out.println("Username must be at least 8 characters!");
 				continue;
 			}
 			
-			if (User.isUsernameTaken(username)) {
+			if (UserFileHandler.isUsernameTaken(username)) {
 				System.out.println("Username already taken!");
 				continue;
 			}
@@ -1674,7 +1545,7 @@ public class Main {
 			
 			if (password.equals("0")) return false;
 			
-			if (!User.isValidPassword(password)) {
+			if (!UserValidator.isValidPassword(password)) {
 				System.out.println("Password must be at least 8 characters and contain at least 1 letter and 1 number!");
 				continue;
 			}
@@ -1682,7 +1553,7 @@ public class Main {
 			break;
 		}
 		
-		User.register(username, password);
+		UserFileHandler.register(username, password);
 		currentUser = new User(username, password);
 		System.out.println("Registration successful!");
 		pause();
@@ -1705,7 +1576,7 @@ public class Main {
 			
 			bw.write(String.format("PLAYER#%.2f#%d#%d#%d#%d#%c",
 					player.getMoney(), player.getDay(), currMapIndex,
-					player.getX().getCoordinate(), player.getY().getCoordinate(), currTile));
+					player.getPosition().getX(), player.getPosition().getY(), currTile));
 			bw.newLine();
 
 			for (PlayerItem item : player.getInventory()) {
@@ -1714,15 +1585,15 @@ public class Main {
 				} else if (item.getItem() instanceof PlantSeed) {
 					PlantSeed seed = (PlantSeed) item.getItem();
 					bw.write(String.format("SEED#%s#%.2f#%c#%d#%d",
-							seed.getName(), seed.getPrice(seed.getName()), seed.getSymbol(), seed.getGrowthTime(), item.getQuantity()));
+							seed.getName(), seed.getPrice(), seed.getSymbol(), seed.getGrowthTime(), item.getQuantity()));
 				} else if (item.getItem() instanceof AnimalProduct) {
 					AnimalProduct ap = (AnimalProduct) item.getItem();
 					bw.write(String.format("ANIMAL_PRODUCT#%s#%.2f#%d#%d",
-							ap.getName(), ap.getPrice(ap.getName()), ap.getGrade(), item.getQuantity()));
+							ap.getName(), ap.getPrice(), ap.getGrade(), item.getQuantity()));
 				} else if (item.getItem() instanceof FarmProduct) {
 					FarmProduct fp = (FarmProduct) item.getItem();
 					bw.write(String.format("FARM_PRODUCT#%s#%.2f#%d#%d",
-							fp.getName(), fp.getPrice(fp.getName()), fp.getFreshness(), item.getQuantity()));
+							fp.getName(), fp.getPrice(), fp.getFreshness(), item.getQuantity()));
 				}
 				bw.newLine();
 			}
@@ -1730,14 +1601,14 @@ public class Main {
 			for (Animal animal : player.getAnimals()) {
 				bw.write(String.format("ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
 						animal.getSymbol(), animal.getName(), animal.getType(), animal.getAnimalProduct(),
-						animal.getHarvestRate(), animal.getAnimalX(), animal.getAnimalY(),
+						animal.getHarvestRate(), animal.getPosition().getX(), animal.getPosition().getY(),
 						animal.getPrice(), animal.isHarvestable()));
 				bw.newLine();
 			}
 			
 			for (Plant plant : player.getPlants()) {
 				bw.write(String.format("PLANT#%c#%s#%d#%d#%d#%.2f#%b",
-						plant.getSymbol(), plant.getName(), plant.getPlantX(), plant.getPlantY(),
+						plant.getSymbol(), plant.getName(), plant.getPosition().getX(), plant.getPosition().getY(),
 						plant.getGrowthTime(), plant.getPrice(), plant.isHarvestable()));
 				bw.newLine();
 			}
@@ -1765,8 +1636,10 @@ public class Main {
 						player.setMoney(Double.parseDouble(parts[1]));
 						player.setDay(Integer.parseInt(parts[2]));
 						currMapIndex = Integer.parseInt(parts[3]);
-						player.getX().setCoordinate(Integer.parseInt(parts[4]));
-						player.getY().setCoordinate(Integer.parseInt(parts[5]));
+						player.getPosition().moveTo(
+							Integer.parseInt(parts[4]),
+							Integer.parseInt(parts[5])
+						);
 						currTile = parts[6].charAt(0);
 						break;
 					
@@ -1775,7 +1648,7 @@ public class Main {
 						int toolQty = Integer.parseInt(parts[2]);
 						Tool loadedTool = new Tool(toolName, 0);
 						player.getInventory().add(new PlayerItem(
-								new Tool(toolName, (int) loadedTool.getPrice(toolName)), toolQty));
+								new Tool(toolName, (int) loadedTool.getPrice()), toolQty));
 						break;
 					
 					case "SEED":
@@ -1818,7 +1691,7 @@ public class Main {
 						boolean aHarvestable = Boolean.parseBoolean(parts[9]);
 						Animal animal = new Animal(aSymbol, aName, aType, aProduct, aHarvestRate, aX, aY, aPrice, aHarvestable);
 						player.getAnimals().add(animal);
-						GameMap.ANIMAL_FARM_MAP[aX][aY] = aSymbol;
+						GameMapView.ANIMAL_FARM_MAP[aX][aY] = aSymbol;
 						break;
 					
 					case "PLANT":
@@ -1832,9 +1705,9 @@ public class Main {
 						Plant plant = new Plant(pSymbol, pName, pX, pY, pGrowthTime, pPrice, pHarvestable);
 						player.getPlants().add(plant);
 						if (pHarvestable) {
-							GameMap.PLANT_FARM_MAP[pX][pY] = Character.toUpperCase(pSymbol);
+							GameMapView.PLANT_FARM_MAP[pX][pY] = Character.toUpperCase(pSymbol);
 						} else {
-							GameMap.PLANT_FARM_MAP[pX][pY] = pSymbol;
+							GameMapView.PLANT_FARM_MAP[pX][pY] = pSymbol;
 						}
 						break;
 				}
@@ -1893,13 +1766,13 @@ public class Main {
 			System.out.println(nav.toString());
 			System.out.print("  >> ");
 			
-			String input = sc.nextLine().trim().toLowerCase();
+			String tutInput = sc.nextLine().trim().toLowerCase();
 			
-			if (input.equals("n") && currentPage < pages.length - 1) {
+			if (tutInput.equals("n") && currentPage < pages.length - 1) {
 				currentPage++;
-			} else if (input.equals("p") && currentPage > 0) {
+			} else if (tutInput.equals("p") && currentPage > 0) {
 				currentPage--;
-			} else if (input.equals("q")) {
+			} else if (tutInput.equals("q")) {
 				return;
 			}
 		}

@@ -1,5 +1,8 @@
+package views;
 
-public class GameMap {
+import models.Coordinate;
+
+public class GameMapView {
 	
 	public static final int MAP_WIDTH = 44;
 	public static final int MAP_HEIGHT = 21;
@@ -76,11 +79,11 @@ public class GameMap {
 		"############################################".toCharArray()
 	};
 	
-	public static String getAnimalFarmMapOpening () {
-		return "5,0";
+	public static Coordinate getAnimalFarmMapOpening() {
+		return new Coordinate(5, 0);
 	}
 	
-	public static String getPlantFarmMapOpening () {
-		return "11,43";
+	public static Coordinate getPlantFarmMapOpening() {
+		return new Coordinate(11, 43);
 	}
 }

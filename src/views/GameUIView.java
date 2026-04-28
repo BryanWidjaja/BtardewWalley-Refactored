@@ -1,5 +1,6 @@
+package views;
 
-public class GameUI {
+public class GameUIView {
 	public static final char[][] PLAYER_INFO_UI = {
 		"########{PlayerInfo}########".toCharArray(),
 		"#  Day   :  #".toCharArray(),

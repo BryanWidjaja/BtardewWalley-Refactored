@@ -1,3 +1,4 @@
+package models.items;
 
 public class FarmProduct extends Item {
 	private int freshness;
@@ -11,9 +12,13 @@ public class FarmProduct extends Item {
 		return freshness;
 	}
 
-	public void setFreshness(int freshness) {
-		this.freshness = freshness;
+	public boolean tickFreshness() {
+		freshness--;
+		return freshness <= 0;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return String.format("%s (Freshness: %d) - $%.0f", getName(), freshness, getPrice());
+	}
 }
