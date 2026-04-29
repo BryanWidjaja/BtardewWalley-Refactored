@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import models.User;
 
-public class UserFileHandler {
+public class UserFileHandlingService {
 	
 	public static boolean isUsernameTaken(String username) {
 		try (BufferedReader br = new BufferedReader(new FileReader("users.txt"))) {

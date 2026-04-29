@@ -1,53 +1,52 @@
 package app;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import database.AnimalDatabase;
+import database.MapDatabase;
+import database.SeedDatabase;
+import database.ToolDatabase;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
-
 import models.Animal;
 import models.Plant;
 import models.Player;
 import models.PlayerItem;
 import models.User;
-import services.UserFileHandler;
-import services.UserValidator;
 import models.items.AnimalProduct;
 import models.items.FarmProduct;
 import models.items.PlantSeed;
 import models.items.Tool;
+import services.UserFileHandlingService;
+import services.UserValidationService;
+import services.loaders.AnimalLoader;
+import services.loaders.MapLoader;
+import services.loaders.PlayerDataLoader;
+import services.loaders.SeedLoader;
+import services.loaders.ToolLoader;
+import services.savers.PlayerDataSaver;
+import utils.AnimalProductUtils;
+import utils.ConsoleUtils;
+import utils.FreshnessUtils;
+import utils.GradeUtils;
+import utils.StringUtils;
 import views.GameMapView;
 import views.GameUIView;
 
 public class Main {
 	
 	private Player player;
-	private ArrayList<char[][]> maps;
-	
-    private ArrayList<Tool> availableTools;
-    private ArrayList<Animal> availableAnimals;
-    private ArrayList<PlantSeed> availableSeeds;
-	
-	private int currMapIndex = 1;
-	private char currTile = ' ';
 	
 	private Scanner sc;
 	private Random rand;
 	
-	private boolean devMode = false;
 	private User currentUser;
 	
-	private static final String RESET = "\u001B[0m";
-	private static final String GREEN = "\u001B[32m";
-	private static final String YELLOW = "\u001B[33m";
-	private static final String WHITE_BRIGHT = "\u001B[97m";
-	private static final String BROWN = "\u001B[38;5;94m";
+	private ConsoleUtils consoleUtils;
+	private AnimalProductUtils animalProductUtils;
+	private GradeUtils gradeUtils;
+	private PlayerDataLoader playerDataLoader;
+	
+	private PlayerDataSaver playerDataSaver;
 
 	public static void main(String[] args) {
 		new Main().init();
@@ -56,130 +55,36 @@ public class Main {
 	private void init () {
 		sc = new Scanner(System.in);
 		rand = new Random();
+		consoleUtils = new ConsoleUtils(sc);
 		
 		loginOrRegister();
 		
-		maps = new ArrayList<>();
-		maps.add(GameMapView.PLANT_FARM_MAP);
-		maps.add(GameMapView.HOME_MAP);
-		maps.add(GameMapView.ANIMAL_FARM_MAP);
-		
 		player = new Player(currentUser.getUsername(), "");
+		animalProductUtils = new AnimalProductUtils(player);
+		gradeUtils = new GradeUtils(rand, player);
 		
-		availableTools = new ArrayList<>();
-		loadAvailableTools();
+		playerDataSaver = new PlayerDataSaver(player,currentUser);
+		playerDataLoader = new PlayerDataLoader(player, currentUser);
 		
-		availableAnimals = new ArrayList<>();
-		loadAvailableAnimals();
-		
-		availableSeeds = new ArrayList<>();
-		loadAvailableSeeds();
-		
-		loadPlayerData();
+		MapLoader.loadMaps();
+		ToolLoader.loadAvailableTools();
+		AnimalLoader.loadAvailableAnimals();
+		SeedLoader.loadAvailableSeeds();
+		playerDataLoader.loadPlayerData();
 		
 		run();
 	}
 	
-	private void loadAvailableTools () {
-		try {
-	    	FileReader file = new FileReader("tools.txt");
-			BufferedReader br = new BufferedReader(file);
-			
-			String line;
-			
-            while ((line = br.readLine()) != null) {
-            	String[] parts = line.split("#");
-            	
-            	String name = parts[0].trim();
-            	
-            	int price = Integer.parseInt(parts[1].trim());
-            	
-            	availableTools.add(new Tool(name, price));
-            }
-            
-            br.close();
-	    } catch (FileNotFoundException e) {
-	        System.out.println("file not found");
-	    } catch (IOException e) {
-	        System.out.println("io");
-	    }
-	}
-	
-	private void loadAvailableSeeds () {
-		try {
-	    	FileReader file = new FileReader("plants.txt");
-			BufferedReader br = new BufferedReader(file);
-			
-			String line;
-			
-            while ((line = br.readLine()) != null) {
-            	String[] parts = line.split("#");
-            	
-            	String name = parts[0].trim();
-            	
-            	int growthTime = Integer.parseInt(parts[1].trim());
-            	
-            	double price = Double.parseDouble(parts[2].trim());
-            	
-                availableSeeds.add(new PlantSeed(name, price, Character.toLowerCase(name.charAt(0)), growthTime));
-            }
-            
-            br.close();
-	    } catch (FileNotFoundException e) {
-	        System.out.println("file not found");
-	    } catch (IOException e) {
-	        System.out.println("io");
-	    }
-	}
-	
-	private void loadAvailableAnimals () {
-		try {
-	    	FileReader file = new FileReader("animals.txt");
-			BufferedReader br = new BufferedReader(file);
-			
-			String line;
-			
-            while ((line = br.readLine()) != null) {
-            	String[] parts = line.split("#");
-            	
-            	String type = parts[0].trim();
-            	
-            	int harvestRate = Integer.parseInt(parts[1].trim());
-            	
-            	double price = Double.parseDouble(parts[2].trim());
-            	
-                availableAnimals.add(new Animal(' ', "", type, "", harvestRate, 0, 0, price, false));
-            }
-            
-            br.close();
-	    } catch (FileNotFoundException e) {
-	        System.out.println("file not found");
-	    } catch (IOException e) {
-	        System.out.println("io");
-	    }
-	}
-	
 	private void run () {
 		while (true) {
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			displayMap();
 			move();
 		}
 	}
 	
-	private void spaceConsole() {
-        for (int i = 0; i < 40; i++) {
-            System.out.println();
-        }
-    }
-	
-	private void pause () {
-		System.out.print("Press ENTER to continue...");
-		sc.nextLine();
-	}
-	
 	private void displayMap() {
-	    char[][] currMap = maps.get(currMapIndex);
+	    char[][] currMap = MapDatabase.getDatabase().getMaps().get(player.getCurrMapIndex());
 
 	    currMap[player.getPosition().getX()]
 	           [player.getPosition().getY()] = 'P';
@@ -210,7 +115,7 @@ public class Main {
 
 	        if (row < mapHeight) {
 	            for (int col = 0; col < currMap[row].length; col++) {
-	                line.append(colorize(currMap[row][col]));
+	                line.append(StringUtils.colorize(currMap[row][col]));
 	            }
 	        } else {
 	            line.append(" ".repeat(mapWidth));
@@ -236,15 +141,15 @@ public class Main {
         String input = sc.nextLine().toLowerCase().trim();
         if (input.isEmpty()) return;
         
-        if (input.equals("devmode")) {
-        	devMode = true;
-        	player.setMoney(1000000);
-        	return;
-        }
+		if (input.equals("devmode")) {
+			if (currentUser != null) currentUser.setDevMode(true);
+			player.setMoney(1000000);
+			return;
+		}
 
         char key = input.charAt(0);
 
-        char[][] currMap = maps.get(currMapIndex);
+        char[][] currMap = MapDatabase.getDatabase().getMaps().get(player.getCurrMapIndex());
 
         int newX = player.getPosition().getX();
         int newY = player.getPosition().getY();
@@ -269,18 +174,18 @@ public class Main {
             	exitGame();
             	return;
             case 'r':
-            	if (devMode)
+            	if (currentUser != null && currentUser.isDevMode())
             		initSleep();
             	return;
             case 'g':
-            	if (devMode) {
+            	if (currentUser != null && currentUser.isDevMode()) {
             		for (int i = 0; i < 20; i++) {
             			sleep();
             		}
             	}
             	return;
             case 'u':
-            	if (devMode) {
+            	if (currentUser != null && currentUser.isDevMode()) {
             		insertAnimal("Chicken", "Chicken1");
             		insertAnimal("Chicken", "Chicken2");
             		insertAnimal("Chicken", "Chicken3");
@@ -293,35 +198,35 @@ public class Main {
             	}
             	return;
             case 't':
-            	if (devMode) {
-            		for (Tool tool : availableTools) {
+            	if (currentUser != null && currentUser.isDevMode()) {
+            		for (Tool tool : ToolDatabase.getDatabase().getTools()) {
                         player.getInventory().add(
                             new PlayerItem(new Tool(tool.getName(), (int) tool.getPrice()), 1)
                         );
                     }
-                    availableTools.clear();
+                    ToolDatabase.getDatabase().getTools().clear();
             	}
             	return;
             case 'p':
-            	if (devMode) {
+            	if (currentUser != null && currentUser.isDevMode()) {
             		
-            		int grade = getGrade();
+            		int grade = gradeUtils.getGrade();
             		
             		AnimalProduct egg = new AnimalProduct(
 							"Egg", 
-							(int) (100 * getGradeMultiplier(grade)), 
+							(int) (100 * gradeUtils.getGradeMultiplier(grade)), 
 							grade
 					);
             		
             		AnimalProduct milk = new AnimalProduct(
             				"Milk", 
-            				(int) (300 * getGradeMultiplier(grade)), 
+            				(int) (300 * gradeUtils.getGradeMultiplier(grade)), 
             				grade
     				);
             		
             		AnimalProduct wool = new AnimalProduct(
             				"Wool", 
-            				(int) (900 * getGradeMultiplier(grade)), 
+            				(int) (900 * gradeUtils.getGradeMultiplier(grade)), 
             				grade
     				);
 
@@ -331,28 +236,28 @@ public class Main {
             	}
             	return;
             case 'k':
-            	if (devMode) {
+            	if (currentUser != null && currentUser.isDevMode()) {
             		PlantSeed wheat = new PlantSeed("Wheat", 50, 'w', 3);
             		player.addItem(wheat, 10);
             	}
             	return;
             case '1':
-            	if (devMode) {
-            		currMapIndex = 0;
+            	if (currentUser != null && currentUser.isDevMode()) {
+            		player.setCurrMapIndex(0);
                     player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
             	return;
             case '2':
-            	if (devMode) {
-            		currMapIndex = 1;
+            	if (currentUser != null && currentUser.isDevMode()) {
+            		player.setCurrMapIndex(1);
                     player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
             	return;
             case '3':
-            	if (devMode) {
-            		currMapIndex = 2;
+            	if (currentUser != null && currentUser.isDevMode()) {
+            		player.setCurrMapIndex(2);
                     player.getPosition().moveTo(10, 21);
                     devMode_ClearAllPlayers();
             	}
@@ -373,21 +278,19 @@ public class Main {
         	return;
 
         currMap[player.getPosition().getX()]
-               [player.getPosition().getY()] = currTile;
+               [player.getPosition().getY()] = player.getCurrTile();
 
-        currTile = currMap[newX][newY];
+        player.setCurrTile(currMap[newX][newY]);
 
         player.getPosition().moveTo(newX, newY);
 
         currMap[newX][newY] = 'P';
-        
-//        System.out.println("X: " + newX + " Y: " + newY);
 
         triggerEvent(newX, newY);
     }
     
     private void devMode_ClearAllPlayers() {
-        for (char[][] map : maps) {
+        for (char[][] map : MapDatabase.getDatabase().getMaps()) {
             for (int i = 0; i < map.length; i++) {
                 for (int j = 0; j < map[i].length; j++) {
                     if (map[i][j] == 'P') {
@@ -414,12 +317,12 @@ public class Main {
     
     private void triggerEvent(int x, int y) {
     	
-    	if (currMapIndex == 1) {
+    	if (player.getCurrMapIndex() == 1) {
             if (x == 10 && y == 0) {
-                currMapIndex = 0;
+                player.setCurrMapIndex(0);
                 player.getPosition().moveTo(11, 43);
             } else if (x == 16 && y == 43) {
-                currMapIndex = 2;
+                player.setCurrMapIndex(2);
                 player.getPosition().moveTo(5, 0);
             } else if (x == 7 && (y == 21 || y == 22)) {
                 initSleep();
@@ -428,22 +331,22 @@ public class Main {
             } else if (x == 17 && (y == 31 || y == 32)) {
 	    		initToolStore();
 	    	}
-        } else if (currMapIndex == 0) {
+        } else if (player.getCurrMapIndex() == 0) {
         	if (x == 11 && y == 43) {
-        		currMapIndex = 1;
+        		player.setCurrMapIndex(1);
                 player.getPosition().moveTo(10, 0);
         	} else if (x == 4 && (y == 23 || y == 24)) {
                 initFarmStore();
-            } else if (currTile == '.') {
+            } else if (player.getCurrTile() == '.') {
                 triggerFarmTile(x, y, true);
-            } else if (Character.isUpperCase(currTile) && currTile != 'P') {
+            } else if (Character.isUpperCase(player.getCurrTile()) && player.getCurrTile() != 'P') {
                 collectPlant(x, y);
             }
-        } else if (currMapIndex == 2) {
+        } else if (player.getCurrMapIndex() == 2) {
         	if (x == 5 && y == 0) {
-        		currMapIndex = 1;
+        		player.setCurrMapIndex(1);
                 player.getPosition().moveTo(16, 43);
-        	} else if (currTile == 'C' || currTile == 'c' || currTile == 'S') {
+        	} else if (player.getCurrTile() == 'C' || player.getCurrTile() == 'c' || player.getCurrTile() == 'S') {
                 collectAnimal(x, y);
             }
         }
@@ -453,7 +356,7 @@ public class Main {
     	if (planting) {
     		if (!player.hasItem("Hoe")) {
     			System.out.println("You need a Hoe to plant! Buy one from the tool store.");
-    			pause();
+    			consoleUtils.pause();
     			return;
     		}
     		
@@ -469,7 +372,7 @@ public class Main {
         	
         	if (playerSeeds.isEmpty()) {
         		System.out.println("No seeds in your inventory!");
-        		pause();
+        		consoleUtils.pause();
         		return;
         	}
         	
@@ -491,7 +394,7 @@ public class Main {
         	
         	insertPlant(selectedSeed, x, y);
         	
-        	currTile = selectedSeed.getSymbol();
+        	player.setCurrTile(selectedSeed.getSymbol());
         	
         	Iterator<PlayerItem> it = player.getInventory().iterator();
         	while (it.hasNext()) {
@@ -514,14 +417,14 @@ public class Main {
         char choice = 0;
         
         do {
-            spaceConsole();
+            consoleUtils.spaceConsole();
             System.out.print("Do you want to sleep? [y/n]: ");
             
             String input = sc.nextLine().trim().toLowerCase();
             
             if (input.length() == 0) {
                 System.out.println("Invalid input!");
-                pause();
+                consoleUtils.pause();
                 continue;
             }
             
@@ -529,7 +432,7 @@ public class Main {
             
             if (choice != 'y' && choice != 'n') {
                 System.out.println("Invalid input!");
-                pause();
+                consoleUtils.pause();
             }
             
         } while (choice != 'y' && choice != 'n');
@@ -579,7 +482,7 @@ public class Main {
      
     private void initAnimalStore () {
     	while (true) {
-    		spaceConsole();
+    		consoleUtils.spaceConsole();
     		System.out.println("Animal Shop");
     		System.out.printf("Money: %.2f$\n", player.getMoney());
             System.out.println("1. Buy Farm Animals");
@@ -614,7 +517,7 @@ public class Main {
     	while (true) {
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
     		System.out.println("Buy Farm Animals");
     		System.out.println();
@@ -625,7 +528,7 @@ public class Main {
     		System.out.printf("| %-3s | %-10s | %-12s | %-10s |\n", "No.", "Name", "Harvest Rate", "Price");
     		System.out.println("================================================");
             
-            for (Animal animal : availableAnimals) {
+            for (Animal animal : AnimalDatabase.getDatabase().getAnimals()) {
             	System.out.printf("| %-3d | %-10s | %-12d | %-10.1f |\n", counter++, animal.getType(), animal.getHarvestRate(), animal.getPrice());
             }
             
@@ -638,7 +541,7 @@ public class Main {
                 if (choice == 0) return;
 
                 if (choice >= 1 && choice < counter) {
-                    Animal selectedAnimal = availableAnimals.get(choice - 1);
+                    Animal selectedAnimal = AnimalDatabase.getDatabase().getAnimals().get(choice - 1);
 
                     if (player.getMoney() >= selectedAnimal.getPrice()) {
                         player.spendMoney(selectedAnimal.getPrice());
@@ -670,7 +573,7 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
                 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
@@ -680,14 +583,14 @@ public class Main {
     private void initSellAnimal () {
     	if (player.getAnimals().isEmpty()) {
     		System.out.println("No Animals obtained yet!");
-    		pause();
+    		consoleUtils.pause();
     		return;
     	}
     	
 		while (true) {
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
     		System.out.println("Sell Farm Animals");
     		System.out.println();
@@ -727,7 +630,7 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
@@ -746,13 +649,13 @@ public class Main {
 	    	
 	    	if (!hasProducts) {
 	    		System.out.println("No Animal Products in inventory!");
-	    		pause();
+	    		consoleUtils.pause();
 	    		return;
 	    	}
 	    	
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
 			System.out.println("Sell Animal Products");
     		System.out.println();
@@ -772,7 +675,7 @@ public class Main {
                     		animalProduct.getName(), 
                     		animalProduct.getGrade(), 
                     		item.getQuantity(),
-                    		(double) (animalProduct.getPrice() * getGradeMultiplier(animalProduct.getGrade()))
+                    		(double) (animalProduct.getPrice() * gradeUtils.getGradeMultiplier(animalProduct.getGrade()))
                     );
                 }
             }
@@ -786,7 +689,7 @@ public class Main {
                 if (choice == 0) return;
 
                 if (choice >= 1 && choice < counter) {
-                	int selectedIndex = findAnimalProduct(choice);
+                	int selectedIndex = animalProductUtils.findAnimalProduct(choice);
                 	
                 	PlayerItem selectedPlayerItem = player.getInventory().get(selectedIndex);
                 	AnimalProduct selectedAnimalProduct = (AnimalProduct) selectedPlayerItem.getItem();
@@ -804,7 +707,7 @@ public class Main {
                 	} while(quantityToSell < 1 || quantityToSell > selectedPlayerItem.getQuantity());
 
                 	player.addMoney(
-                			selectedAnimalProduct.getPrice() * getGradeMultiplier(selectedAnimalProduct.getGrade()) * quantityToSell
+                			selectedAnimalProduct.getPrice() * gradeUtils.getGradeMultiplier(selectedAnimalProduct.getGrade()) * quantityToSell
                 	);
                 	
                 	player.removeItemQuantity(selectedIndex, quantityToSell);
@@ -814,31 +717,16 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
         }
     }
-    
-    private int findAnimalProduct(int choice) {
-		int counter = 1;
-		for (PlayerItem item : player.getInventory()) {
-            if (item.getItem() instanceof AnimalProduct) {
-                if (counter == choice) {
-                	return player.getInventory().indexOf(item);
-                }
-                
-                counter++;
-            }
-        }
-		
-		return -1;
-	}
-    
+
     private void initFarmStore () {
     	while (true) {
-    		spaceConsole();
+    		consoleUtils.spaceConsole();
     		System.out.println("Farm Shop");
     		System.out.printf("Money: %.2f$\n", player.getMoney());
             System.out.println("1. Buy Seeds");
@@ -869,7 +757,7 @@ public class Main {
     	while (true) {
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
     		System.out.println("Buy Seeds");
     		System.out.println();
@@ -880,7 +768,7 @@ public class Main {
     		System.out.printf("| %-3s | %-10s | %-12s | %-10s |\n", "No.", "Name", "Growth Time", "Price");
     		System.out.println("================================================");
             
-            for (PlantSeed seed : availableSeeds) {
+            for (PlantSeed seed : SeedDatabase.getDatabase().getPlantSeeds()) {
             	System.out.printf("| %-3d | %-10s | %-12d | %-10.1f |\n", counter++, seed.getName(), seed.getGrowthTime(), seed.getPrice());
             }
             
@@ -893,7 +781,7 @@ public class Main {
                 if (choice == 0) return;
 
                 if (choice >= 1 && choice < counter) {
-                    PlantSeed selectedSeed = availableSeeds.get(choice - 1);
+                    PlantSeed selectedSeed = SeedDatabase.getDatabase().getPlantSeeds().get(choice - 1);
                     
                     int quantity = -1;
 
@@ -920,7 +808,7 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
                 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
@@ -939,13 +827,13 @@ public class Main {
 	    	
 	    	if (!hasProducts) {
 	    		System.out.println("No Farm Products in inventory!");
-	    		pause();
+	    		consoleUtils.pause();
 	    		return;
 	    	}
 	    	
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
 			System.out.println("Sell Farm Products");
     		System.out.println();
@@ -965,7 +853,7 @@ public class Main {
                     		farmProduct.getName(), 
                     		farmProduct.getFreshness(), 
                     		item.getQuantity(),
-                    		(double) (farmProduct.getPrice() * getFreshnessMultiplier(farmProduct.getFreshness()) * 2)
+                    		(double) (farmProduct.getPrice() * FreshnessUtils.getFreshnessMultiplier(farmProduct.getFreshness()) * 2)
                     );
                 }
             }
@@ -997,7 +885,7 @@ public class Main {
                 	} while(quantityToSell < 1 || quantityToSell > selectedPlayerItem.getQuantity());
 
                 	player.addMoney(
-                			selectedFarmProduct.getPrice() * getFreshnessMultiplier(selectedFarmProduct.getFreshness()) * 2 * quantityToSell
+                			selectedFarmProduct.getPrice() * FreshnessUtils.getFreshnessMultiplier(selectedFarmProduct.getFreshness()) * 2 * quantityToSell
                 	);
                 	
                 	player.removeItemQuantity(selectedIndex, quantityToSell);
@@ -1007,7 +895,7 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
@@ -1033,22 +921,22 @@ public class Main {
     	while (true) {
 			int counter = 1;
     		
-			spaceConsole();
+			consoleUtils.spaceConsole();
     		System.out.println("Buy Tools");
     		System.out.println();
     		System.out.println("Money: $" + player.getMoney());
     		System.out.println();
     		
-    		if (availableTools.isEmpty()) {
+    		if (ToolDatabase.getDatabase().getTools().isEmpty()) {
     			System.out.println("You already buy all tools!");
-    			pause();
+    			consoleUtils.pause();
     			return;
     		}
             System.out.println("=================================");
             System.out.printf("| %-3s | %-10s | %-10s |\n", "No.", "Name", "Price");
             System.out.println("=================================");
             
-            for (Tool tool : availableTools) {
+            for (Tool tool : ToolDatabase.getDatabase().getTools()) {
             	System.out.printf("| %-3s | %-10s | %-10s |\n", counter++, tool.getName(), tool.getPrice());
             }
             
@@ -1061,12 +949,12 @@ public class Main {
                 if (choice == 0) return;
 
                 if (choice >= 1 && choice < counter) {
-                    Tool selectedTool = availableTools.get(choice - 1);
+                    Tool selectedTool = ToolDatabase.getDatabase().getTools().get(choice - 1);
                     int price = (int) selectedTool.getPrice();
 
                     if (player.spendMoney(price)) {
                         player.getInventory().add(new PlayerItem(new Tool(selectedTool.getName(), price), 1));
-                        availableTools.remove(selectedTool);
+                        ToolDatabase.getDatabase().getTools().remove(selectedTool);
 
                         System.out.println("Successfully buy a tool");
                     } else {
@@ -1076,7 +964,7 @@ public class Main {
                     System.out.println("Invalid choice!");
                 }
 
-                pause();
+                consoleUtils.pause();
             } catch (Exception e) {
                 sc.nextLine();
             }
@@ -1141,7 +1029,7 @@ public class Main {
     
     private void openInventory () {
     	while (true) {
-    		spaceConsole();
+    		consoleUtils.spaceConsole();
     		System.out.println("Inventory Menu");
             System.out.println("1. View Animal Products");
             System.out.println("2. View Farm Products");
@@ -1180,7 +1068,7 @@ public class Main {
     }
     
     private void initViewAnimalProducts () {
-    	spaceConsole();
+    	consoleUtils.spaceConsole();
     	
     	int counter = 1;
     	
@@ -1200,11 +1088,11 @@ public class Main {
     		System.out.println("No animal products in inventory!");
     	}
     	
-    	pause();
+    	consoleUtils.pause();
     }
     
     private void initViewFarmProducts () {
-    	spaceConsole();
+    	consoleUtils.spaceConsole();
     	
     	int counter = 1;
     	
@@ -1224,11 +1112,11 @@ public class Main {
     		System.out.println("No farm products in inventory!");
     	}
     	
-    	pause();
+    	consoleUtils.pause();
     }
     
     private void initViewAnimals () {
-    	spaceConsole();
+    	consoleUtils.spaceConsole();
     	
     	int counter = 1;
     	
@@ -1245,11 +1133,11 @@ public class Main {
     		System.out.println("No animals in inventory!");
     	}
     	
-    	pause();
+    	consoleUtils.pause();
     }
     
     private void initViewTools () {
-    	spaceConsole();
+    	consoleUtils.spaceConsole();
     	
     	int counter = 1;
     	
@@ -1267,11 +1155,11 @@ public class Main {
     		System.out.println("No tools in inventory!");
     	}
     	
-    	pause();
+    	consoleUtils.pause();
     }
     
     private void initViewPlantSeeds () {
-    	spaceConsole();
+    	consoleUtils.spaceConsole();
     	
     	int counter = 1;
     	
@@ -1290,7 +1178,7 @@ public class Main {
     		System.out.println("No plant seeds in inventory!");
     	}
     	
-    	pause();
+    	consoleUtils.pause();
     }
     
     private void collectAnimal (int animalX, int animalY) {
@@ -1299,10 +1187,10 @@ public class Main {
 	        	if (!animal.isHarvestable()) break;
 	        	
 	        	int choice = 0;
-	        	int grade = getGrade();
+	        	int grade = gradeUtils.getGrade();
 	        	
 	        	while (true) {
-	        		System.out.printf("Want to take %s %s?\n", possessive(animal.getName()), animal.getAnimalProduct());
+	        		System.out.printf("Want to take %s %s?\n", StringUtils.possessive(animal.getName()), animal.getAnimalProduct());
 	        		System.out.println("1. Take");
 	        		System.out.println("2. Don't take");
 	        		System.out.print(">> ");
@@ -1312,18 +1200,18 @@ public class Main {
 
 	                    if (choice == 1) {
 		        			if (animal.getSymbol() == 'C' && !player.hasItem("Bucket")) {
-		        				System.out.println("You don't have a bucket to get " + possessive(animal.getName()) + " " + animal.getAnimalProduct());
-		        				pause();
+		        				System.out.println("You don't have a bucket to get " + StringUtils.possessive(animal.getName()) + " " + animal.getAnimalProduct());
+		        				consoleUtils.pause();
 		        				return;
 		        			} else if (animal.getSymbol() == 'S' && !player.hasItem("Shears")) {
-		        				System.out.println("You don't have shears to get " + possessive(animal.getName()) + " " + animal.getAnimalProduct());
-		        				pause();
+		        				System.out.println("You don't have shears to get " + StringUtils.possessive(animal.getName()) + " " + animal.getAnimalProduct());
+		        				consoleUtils.pause();
 		        				return;
 		        			} else {
 		        				
 		        				AnimalProduct newProduct = new AnimalProduct(
     		        						animal.getAnimalProduct(), 
-    		        						(int) (animal.getPrice() * getGradeMultiplier(grade)), 
+    		        						(int) (animal.getPrice() * gradeUtils.getGradeMultiplier(grade)), 
     		        						grade
     		        				);
 		        				
@@ -1338,7 +1226,7 @@ public class Main {
 	                    
 	                    if (choice < 1 || choice > 2) {
 	                    	System.out.println("Invalid range number input!");
-	                    	pause();
+	                    	consoleUtils.pause();
 	                    }
 	                } catch (Exception e) {
 	                    sc.nextLine();
@@ -1361,7 +1249,7 @@ public class Main {
 
                 FarmProduct newProduct = new FarmProduct(
                         plant.getName(),
-                        (int) (plant.getPrice() * getFreshnessMultiplier(freshness)),
+                        (int) (plant.getPrice() * FreshnessUtils.getFreshnessMultiplier(freshness)),
                         freshness
                 );
 
@@ -1371,67 +1259,16 @@ public class Main {
 
                 GameMapView.PLANT_FARM_MAP[plantX][plantY] = '.';
 
-                currTile = '.';
+                player.setCurrTile('.');
 
                 break;
             }
         }
     }
-    
-    private int getGrade() {
-        int gradeRand = rand.nextInt(100) + 1;
-        int day = player.getDay();
-
-        int grade2Chance = day;
-        int grade3Chance = day / 2;
-
-        if (gradeRand <= grade2Chance) {
-            return 2;
-        } else if (gradeRand <= grade2Chance + grade3Chance) {
-            return 3;
-        } else {
-            return 1;
-        }
-    }
-	
-	private int getGradeMultiplier (int grade) {
-		if (grade == 1) 
-			return 1;
-		else if (grade == 2) 
-			return 2;
-		else 
-			return 5;
-	}
-	
-	private double getFreshnessMultiplier (int freshness) {
-		if (freshness == 1) 
-			return 0.25;
-		else if (freshness == 3) 
-			return 0.5;
-		else 
-			return 1;
-	}
-	
-	private String colorize (char c) {
-		switch (c) {
-			case 'P': return GREEN + c + RESET;
-			case 'c': return YELLOW + c + RESET;
-			case 'C': return BROWN + c + RESET;
-			case 'S': return WHITE_BRIGHT + c + RESET;
-			default: return String.valueOf(c);
-		}
-	}
-	
-	private String possessive (String name) {
-		if (name.toLowerCase().endsWith("s")) {
-			return name + "'";
-		}
-		return name + "'s";
-	}
 	
 	private void loginOrRegister () {
 		while (true) {
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			System.out.println("                                                                                   ");
 			System.out.println("    ▄▄▄                                          ▄▄▄              ▄▄ ▄▄             ");
 			System.out.println("   ██▀▀█▄ █▄               █▄                   █▀██  ██  ██▀▀     ██ ██            ");
@@ -1474,7 +1311,7 @@ public class Main {
 	}
 	
 	private boolean initLogin () {
-		spaceConsole();
+		consoleUtils.spaceConsole();
 		System.out.println(" _                 _       ");
 		System.out.println("| |               (_)      ");
 		System.out.println("| |     ___   __ _ _ _ __  ");
@@ -1493,21 +1330,21 @@ public class Main {
 		String password = sc.nextLine().trim();
 		if (password.equals("0")) return false;
 		
-		User user = UserFileHandler.authenticate(username, password);
+		User user = UserFileHandlingService.authenticate(username, password);
 		if (user != null) {
 			currentUser = user;
 			System.out.println("Login successful!");
-			pause();
+			consoleUtils.pause();
 			return true;
 		} else {
 			System.out.println("Invalid username or password!");
-			pause();
+			consoleUtils.pause();
 			return false;
 		}
 	}
 	
 	private boolean initRegister () {
-		spaceConsole();
+		consoleUtils.spaceConsole();
 		System.out.println("______           _     _            ");
 		System.out.println("| ___ \\         (_)   | |           ");
 		System.out.println("| |_/ /___  __ _ _ ___| |_ ___ _ __ ");
@@ -1525,12 +1362,12 @@ public class Main {
 			
 			if (username.equals("0")) return false;
 			
-			if (!UserValidator.isValidUsername(username)) {
+			if (!UserValidationService.isValidUsername(username)) {
 				System.out.println("Username must be at least 8 characters!");
 				continue;
 			}
 			
-			if (UserFileHandler.isUsernameTaken(username)) {
+			if (UserFileHandlingService.isUsernameTaken(username)) {
 				System.out.println("Username already taken!");
 				continue;
 			}
@@ -1545,7 +1382,7 @@ public class Main {
 			
 			if (password.equals("0")) return false;
 			
-			if (!UserValidator.isValidPassword(password)) {
+			if (!UserValidationService.isValidPassword(password)) {
 				System.out.println("Password must be at least 8 characters and contain at least 1 letter and 1 number!");
 				continue;
 			}
@@ -1553,184 +1390,17 @@ public class Main {
 			break;
 		}
 		
-		UserFileHandler.register(username, password);
+		UserFileHandlingService.register(username, password);
 		currentUser = new User(username, password);
 		System.out.println("Registration successful!");
-		pause();
+		consoleUtils.pause();
 		return true;
 	}
 	
 	private void exitGame () {
-		savePlayerData();
+		playerDataSaver.savePlayerData();
 		System.out.println("Game saved successfully! Goodbye!");
 		System.exit(0);
-	}
-	
-	private void savePlayerData () {
-		try {
-			File dir = new File("user_data");
-			if (!dir.exists()) {
-				dir.mkdir();
-			}
-			BufferedWriter bw = new BufferedWriter(new FileWriter("user_data/" + currentUser.getUsername() + "_data.txt"));
-			
-			bw.write(String.format("PLAYER#%.2f#%d#%d#%d#%d#%c",
-					player.getMoney(), player.getDay(), currMapIndex,
-					player.getPosition().getX(), player.getPosition().getY(), currTile));
-			bw.newLine();
-
-			for (PlayerItem item : player.getInventory()) {
-				if (item.getItem() instanceof Tool) {
-					bw.write(String.format("TOOL#%s#%d", item.getItem().getName(), item.getQuantity()));
-				} else if (item.getItem() instanceof PlantSeed) {
-					PlantSeed seed = (PlantSeed) item.getItem();
-					bw.write(String.format("SEED#%s#%.2f#%c#%d#%d",
-							seed.getName(), seed.getPrice(), seed.getSymbol(), seed.getGrowthTime(), item.getQuantity()));
-				} else if (item.getItem() instanceof AnimalProduct) {
-					AnimalProduct ap = (AnimalProduct) item.getItem();
-					bw.write(String.format("ANIMAL_PRODUCT#%s#%.2f#%d#%d",
-							ap.getName(), ap.getPrice(), ap.getGrade(), item.getQuantity()));
-				} else if (item.getItem() instanceof FarmProduct) {
-					FarmProduct fp = (FarmProduct) item.getItem();
-					bw.write(String.format("FARM_PRODUCT#%s#%.2f#%d#%d",
-							fp.getName(), fp.getPrice(), fp.getFreshness(), item.getQuantity()));
-				}
-				bw.newLine();
-			}
-			
-			for (Animal animal : player.getAnimals()) {
-				bw.write(String.format("ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
-						animal.getSymbol(), animal.getName(), animal.getType(), animal.getAnimalProduct(),
-						animal.getHarvestRate(), animal.getPosition().getX(), animal.getPosition().getY(),
-						animal.getPrice(), animal.isHarvestable()));
-				bw.newLine();
-			}
-			
-			for (Plant plant : player.getPlants()) {
-				bw.write(String.format("PLANT#%c#%s#%d#%d#%d#%.2f#%b",
-						plant.getSymbol(), plant.getName(), plant.getPosition().getX(), plant.getPosition().getY(),
-						plant.getGrowthTime(), plant.getPrice(), plant.isHarvestable()));
-				bw.newLine();
-			}
-			
-			bw.close();
-		} catch (IOException e) {
-			System.out.println("Error saving player data!");
-		}
-	}
-	
-	private void loadPlayerData () {
-		File saveFile = new File("user_data/" + currentUser.getUsername() + "_data.txt");
-		if (!saveFile.exists()) return;
-		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(saveFile));
-			String line;
-			
-			while ((line = br.readLine()) != null) {
-				String[] parts = line.split("#");
-				String type = parts[0];
-				
-				switch (type) {
-					case "PLAYER":
-						player.setMoney(Double.parseDouble(parts[1]));
-						player.setDay(Integer.parseInt(parts[2]));
-						currMapIndex = Integer.parseInt(parts[3]);
-						player.getPosition().moveTo(
-							Integer.parseInt(parts[4]),
-							Integer.parseInt(parts[5])
-						);
-						currTile = parts[6].charAt(0);
-						break;
-					
-					case "TOOL":
-						String toolName = parts[1];
-						int toolQty = Integer.parseInt(parts[2]);
-						Tool loadedTool = new Tool(toolName, 0);
-						player.getInventory().add(new PlayerItem(
-								new Tool(toolName, (int) loadedTool.getPrice()), toolQty));
-						break;
-					
-					case "SEED":
-						String seedName = parts[1];
-						double seedPrice = Double.parseDouble(parts[2]);
-						char seedSymbol = parts[3].charAt(0);
-						int seedGrowth = Integer.parseInt(parts[4]);
-						int seedQty = Integer.parseInt(parts[5]);
-						player.getInventory().add(new PlayerItem(
-								new PlantSeed(seedName, seedPrice, seedSymbol, seedGrowth), seedQty));
-						break;
-					
-					case "ANIMAL_PRODUCT":
-						String apName = parts[1];
-						double apPrice = Double.parseDouble(parts[2]);
-						int apGrade = Integer.parseInt(parts[3]);
-						int apQty = Integer.parseInt(parts[4]);
-						player.getInventory().add(new PlayerItem(
-								new AnimalProduct(apName, (int) apPrice, apGrade), apQty));
-						break;
-					
-					case "FARM_PRODUCT":
-						String fpName = parts[1];
-						double fpPrice = Double.parseDouble(parts[2]);
-						int fpFreshness = Integer.parseInt(parts[3]);
-						int fpQty = Integer.parseInt(parts[4]);
-						player.getInventory().add(new PlayerItem(
-								new FarmProduct(fpName, fpPrice, fpFreshness), fpQty));
-						break;
-					
-					case "ANIMAL":
-						char aSymbol = parts[1].charAt(0);
-						String aName = parts[2];
-						String aType = parts[3];
-						String aProduct = parts[4];
-						int aHarvestRate = Integer.parseInt(parts[5]);
-						int aX = Integer.parseInt(parts[6]);
-						int aY = Integer.parseInt(parts[7]);
-						double aPrice = Double.parseDouble(parts[8]);
-						boolean aHarvestable = Boolean.parseBoolean(parts[9]);
-						Animal animal = new Animal(aSymbol, aName, aType, aProduct, aHarvestRate, aX, aY, aPrice, aHarvestable);
-						player.getAnimals().add(animal);
-						GameMapView.ANIMAL_FARM_MAP[aX][aY] = aSymbol;
-						break;
-					
-					case "PLANT":
-						char pSymbol = parts[1].charAt(0);
-						String pName = parts[2];
-						int pX = Integer.parseInt(parts[3]);
-						int pY = Integer.parseInt(parts[4]);
-						int pGrowthTime = Integer.parseInt(parts[5]);
-						double pPrice = Double.parseDouble(parts[6]);
-						boolean pHarvestable = Boolean.parseBoolean(parts[7]);
-						Plant plant = new Plant(pSymbol, pName, pX, pY, pGrowthTime, pPrice, pHarvestable);
-						player.getPlants().add(plant);
-						if (pHarvestable) {
-							GameMapView.PLANT_FARM_MAP[pX][pY] = Character.toUpperCase(pSymbol);
-						} else {
-							GameMapView.PLANT_FARM_MAP[pX][pY] = pSymbol;
-						}
-						break;
-				}
-			}
-			
-			br.close();
-			
-			Iterator<Tool> it = availableTools.iterator();
-			while (it.hasNext()) {
-				Tool tool = it.next();
-				for (PlayerItem item : player.getInventory()) {
-					if (item.getItem() instanceof Tool && item.getItem().getName().equals(tool.getName())) {
-						it.remove();
-						break;
-					}
-				}
-			}
-			
-		} catch (FileNotFoundException e) {
-
-		} catch (IOException e) {
-			System.out.println("Error loading player data!");
-		}
 	}
 	
 	private void showTutorial () {
@@ -1738,7 +1408,7 @@ public class Main {
 		int currentPage = 0;
 		
 		while (true) {
-			spaceConsole();
+			consoleUtils.spaceConsole();
 			
 			System.out.println("============================================================");
 			System.out.println("               BTARDEW WALLEY - TUTORIAL");

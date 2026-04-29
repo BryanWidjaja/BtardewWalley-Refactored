@@ -13,6 +13,8 @@ public class Player {
 	private final ArrayList<Plant> plants;
 	private final Coordinate position;
 	private int day;
+	private int currMapIndex;
+	private char currTile;
 	
 	public Player(String name, String gender) {
 		this.name = name;
@@ -23,6 +25,8 @@ public class Player {
 		this.plants = new ArrayList<>();
 		this.position = new Coordinate(10, 21);
 		this.day = 1;
+		currMapIndex = 1;
+		currTile = ' ';
 	}
 
 	public String getName() {
@@ -125,5 +129,21 @@ public class Player {
 		if (item.isEmpty()) {
 			inventory.remove(index);
 		}
+	}
+
+	public int getCurrMapIndex() {
+		return currMapIndex;
+	}
+
+	public void setCurrMapIndex(int currMapIndex) {
+		this.currMapIndex = currMapIndex;
+	}
+
+	public char getCurrTile() {
+		return currTile;
+	}
+
+	public void setCurrTile(char currTile) {
+		this.currTile = currTile;
 	}
 }

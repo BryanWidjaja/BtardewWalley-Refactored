@@ -1,7 +1,6 @@
 package services;
 
-public class UserValidator {
-	
+public class UserValidationService {
 	public static boolean isValidUsername(String username) {
 		return username != null && username.trim().length() >= 8;
 	}
