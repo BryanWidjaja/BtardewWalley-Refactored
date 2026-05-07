@@ -1,15 +1,15 @@
 package models;
 
-public class Animal {
-	private final char symbol;
-	private final String name;
-	private final String type;
-	private final String animalProduct;
-	private int harvestRate;
-	private final Coordinate position;
-	private final double price;
-	private boolean harvestable;
-	
+public abstract class Animal {
+	protected char symbol;
+	protected String name;
+	protected String type;
+	protected String animalProduct;
+	protected int harvestRate;
+	protected Coordinate position;
+	protected double price;
+	protected boolean harvestable;
+
 	public Animal(char symbol, String name, String type, String animalProduct, int harvestRate,
 			int animalX, int animalY, double price, boolean harvestable) {
 		this.symbol = symbol;
@@ -54,6 +54,8 @@ public class Animal {
 		return harvestable;
 	}
 
+	public abstract int getDefaultHarvestRate();
+
 	public void tickHarvest() {
 		if (harvestable) return;
 
@@ -61,13 +63,7 @@ public class Animal {
 
 		if (harvestRate == 0) {
 			harvestable = true;
-
-			if (symbol == 'c') 
-				harvestRate = 1;
-			else if (symbol == 'C') 
-				harvestRate = 2;
-			else if (symbol == 'S') 
-				harvestRate = 5;
+			harvestRate = getDefaultHarvestRate();
 		}
 	}
 

@@ -3,7 +3,7 @@ package models;
 import models.items.Item;
 
 public class PlayerItem {
-	private final Item item;
+	private Item item;
 	private int quantity;
 	
 	public PlayerItem(Item item, int quantity) {

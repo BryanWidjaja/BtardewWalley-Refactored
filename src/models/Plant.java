@@ -1,13 +1,13 @@
 package models;
 
 public class Plant {
-	private final char symbol;
-	private final String name;
-	private final Coordinate position;
+	private char symbol;
+	private String name;
+	private Coordinate position;
 	private int growthTime;
-	private final double price;
+	private double price;
 	private boolean harvestable;
-	
+
 	public Plant(char symbol, String name, int plantX, int plantY, int growthTime, double price, boolean harvestable) {
 		this.symbol = symbol;
 		this.name = name;

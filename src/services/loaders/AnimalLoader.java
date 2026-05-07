@@ -1,21 +1,23 @@
 package services.loaders;
 
-import database.AnimalDatabase;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+
+import databases.AnimalDatabase;
 import models.Animal;
+import factories.AnimalFactoryProvider;
 
 public class AnimalLoader {
 	public static void loadAvailableAnimals () {
 		try {
-	    	FileReader file = new FileReader("animals.txt");
-			BufferedReader br = new BufferedReader(file);
+	    	FileReader fileReader = new FileReader("animals.txt");
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
 			String line;
 			
-            while ((line = br.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
             	String[] parts = line.split("#");
             	
             	String type = parts[0].trim();
@@ -24,10 +26,11 @@ public class AnimalLoader {
             	
             	double price = Double.parseDouble(parts[2].trim());
             	
-                AnimalDatabase.getDatabase().getAnimals().add(new Animal(' ', "", type, "", harvestRate, 0, 0, price, false));
+                Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal("", harvestRate, 0, 0, price, false);
+                AnimalDatabase.getDatabase().getAnimals().add(animal);
             }
             
-            br.close();
+            bufferedReader.close();
 	    } catch (FileNotFoundException e) {
 	        System.out.println("animals.txt not found");
 	    } catch (IOException e) {

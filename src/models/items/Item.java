@@ -1,8 +1,8 @@
 package models.items;
 
 public abstract class Item {
-	private final String name;
-	private final double price;
+	private String name;
+	private double price;
 	
 	public Item(String name, double price) {
 		this.name = name;

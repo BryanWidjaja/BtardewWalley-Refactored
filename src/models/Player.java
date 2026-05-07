@@ -3,19 +3,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import models.items.Item;
+import models.items.AnimalProduct;
 
 public class Player {
-	private final String name;
-	private final String gender;
+	private String name;
+	private String gender;
 	private double money;
-	private final ArrayList<PlayerItem> inventory;
-	private final ArrayList<Animal> animals;
-	private final ArrayList<Plant> plants;
-	private final Coordinate position;
+	private ArrayList<PlayerItem> inventory;
+	private ArrayList<Animal> animals;
+	private ArrayList<Plant> plants;
+	private Coordinate position;
 	private int day;
 	private int currMapIndex;
 	private char currTile;
-	
+
 	public Player(String name, String gender) {
 		this.name = name;
 		this.gender = gender;
@@ -25,8 +26,8 @@ public class Player {
 		this.plants = new ArrayList<>();
 		this.position = new Coordinate(10, 21);
 		this.day = 1;
-		currMapIndex = 1;
-		currTile = ' ';
+		this.currMapIndex = 1;
+		this.currTile = ' ';
 	}
 
 	public String getName() {
@@ -39,16 +40,6 @@ public class Player {
 
 	public double getMoney() {
 		return money;
-	}
-
-	public void addMoney(double amount) {
-		money += amount;
-	}
-
-	public boolean spendMoney(double amount) {
-		if (money < amount) return false;
-		money -= amount;
-		return true;
 	}
 
 	public void setMoney(double money) {
@@ -75,12 +66,38 @@ public class Player {
 		return day;
 	}
 
-	public void advanceDay() {
-		day++;
-	}
-
 	public void setDay(int day) {
 		this.day = day;
+	}
+
+	public int getCurrMapIndex() {
+		return currMapIndex;
+	}
+
+	public void setCurrMapIndex(int currMapIndex) {
+		this.currMapIndex = currMapIndex;
+	}
+
+	public char getCurrTile() {
+		return currTile;
+	}
+
+	public void setCurrTile(char currTile) {
+		this.currTile = currTile;
+	}
+
+	public void addMoney(double amount) {
+		money += amount;
+	}
+
+	public boolean spendMoney(double amount) {
+		if (money < amount) return false;
+		money -= amount;
+		return true;
+	}
+
+	public void advanceDay() {
+		day++;
 	}
 
 	public void addItem(Item newItem, int quantity) {
@@ -88,10 +105,10 @@ public class Player {
 			if (existing.getItem().getName().equals(newItem.getName())
 				&& existing.getItem().getClass().equals(newItem.getClass())) {
 				
-				if (newItem instanceof models.items.AnimalProduct) {
-					models.items.AnimalProduct newAP = (models.items.AnimalProduct) newItem;
-					models.items.AnimalProduct existingAP = (models.items.AnimalProduct) existing.getItem();
-					if (newAP.getGrade() == existingAP.getGrade()) {
+				if (newItem instanceof AnimalProduct) {
+					AnimalProduct newAnimalProduct = (AnimalProduct) newItem;
+					AnimalProduct existingAnimalProduct = (AnimalProduct) existing.getItem();
+					if (newAnimalProduct.getGrade() == existingAnimalProduct.getGrade()) {
 						existing.addQuantity(quantity);
 						return;
 					}
@@ -129,21 +146,5 @@ public class Player {
 		if (item.isEmpty()) {
 			inventory.remove(index);
 		}
-	}
-
-	public int getCurrMapIndex() {
-		return currMapIndex;
-	}
-
-	public void setCurrMapIndex(int currMapIndex) {
-		this.currMapIndex = currMapIndex;
-	}
-
-	public char getCurrTile() {
-		return currTile;
-	}
-
-	public void setCurrTile(char currTile) {
-		this.currTile = currTile;
 	}
 }

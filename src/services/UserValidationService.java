@@ -6,12 +6,20 @@ public class UserValidationService {
 	}
 	
 	public static boolean isValidPassword(String password) {
-		if (password == null || password.length() < 8) return false;
+		if (password == null || password.length() < 8) {
+            return false;
+        }
+
 		boolean hasLetter = false;
 		boolean hasDigit = false;
-		for (char c : password.toCharArray()) {
-			if (Character.isLetter(c)) hasLetter = true;
-			if (Character.isDigit(c)) hasDigit = true;
+
+		for (char character : password.toCharArray()) {
+			if (Character.isLetter(character)) {
+                hasLetter = true;
+            }
+			if (Character.isDigit(character)) {
+                hasDigit = true;
+            }
 		}
 		return hasLetter && hasDigit;
 	}

@@ -2,8 +2,8 @@ package services.loaders;
 
 import java.util.ArrayList;
 
-import database.MapDatabase;
-import views.GameMapView;
+import databases.MapDatabase;
+import ui.views.GameMapView;
 
 public class MapLoader {
 	public static void loadMaps () {

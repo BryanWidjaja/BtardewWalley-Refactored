@@ -1,7 +1,7 @@
 package models.items;
 
 public class AnimalProduct extends Item {
-	private final int grade;
+	private int grade;
 	
     public AnimalProduct(String name, int price, int grade) {
     	super(name, price);
@@ -10,6 +10,10 @@ public class AnimalProduct extends Item {
 
 	public int getGrade() {
 		return grade;
+	}
+
+	public void setGrade(int grade) {
+		this.grade = grade;
 	}
 
 	@Override

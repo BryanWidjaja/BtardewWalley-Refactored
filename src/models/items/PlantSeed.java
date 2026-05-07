@@ -1,9 +1,8 @@
 package models.items;
 
 public class PlantSeed extends Item {
-	
-	private final char symbol;
-	private final int growthTime;
+	private char symbol;
+	private int growthTime;
 	
 	public PlantSeed(String name, double price, char symbol, int growthTime) {
 		super(name, price);

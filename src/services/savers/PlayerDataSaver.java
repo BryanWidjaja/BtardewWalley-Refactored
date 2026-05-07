@@ -26,59 +26,58 @@ public class PlayerDataSaver {
 
 	public void savePlayerData () {
 		try {
-			File dir = new File("user_data");
-			if (!dir.exists()) {
-				dir.mkdir();
+			File directory = new File("user_data");
+			if (!directory.exists()) {
+				directory.mkdir();
 			}
-			BufferedWriter bw = new BufferedWriter(new FileWriter("user_data/" + currentUser.getUsername() + "_data.txt"));
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("user_data/" + currentUser.getUsername() + "_data.txt"));
 			
-			bw.write(String.format("PLAYER#%.2f#%d#%d#%d#%d#%c",
+			bufferedWriter.write(String.format("PLAYER#%.2f#%d#%d#%d#%d#%c",
 					player.getMoney(), player.getDay(), player.getCurrMapIndex(),
 					player.getPosition().getX(), player.getPosition().getY(), player.getCurrTile()));
-			bw.newLine();
+			bufferedWriter.newLine();
 
 			for (PlayerItem item : player.getInventory()) {
 				if (item.getItem() instanceof Tool) {
-					bw.write(String.format("TOOL#%s#%d", item.getItem().getName(), item.getQuantity()));
+					bufferedWriter.write(String.format("TOOL#%s#%d", item.getItem().getName(), item.getQuantity()));
 				} else if (item.getItem() instanceof PlantSeed) {
 					PlantSeed seed = (PlantSeed) item.getItem();
-					bw.write(String.format("SEED#%s#%.2f#%c#%d#%d",
+					bufferedWriter.write(String.format("SEED#%s#%.2f#%c#%d#%d",
 							seed.getName(), seed.getPrice(), seed.getSymbol(), seed.getGrowthTime(), item.getQuantity()));
 				} else if (item.getItem() instanceof AnimalProduct) {
-					AnimalProduct ap = (AnimalProduct) item.getItem();
-					bw.write(String.format("ANIMAL_PRODUCT#%s#%.2f#%d#%d",
-							ap.getName(), ap.getPrice(), ap.getGrade(), item.getQuantity()));
+					AnimalProduct animalProduct = (AnimalProduct) item.getItem();
+					bufferedWriter.write(String.format("ANIMAL_PRODUCT#%s#%.2f#%d#%d",
+							animalProduct.getName(), animalProduct.getPrice(), animalProduct.getGrade(), item.getQuantity()));
 				} else if (item.getItem() instanceof FarmProduct) {
-					FarmProduct fp = (FarmProduct) item.getItem();
-					bw.write(String.format("FARM_PRODUCT#%s#%.2f#%d#%d",
-							fp.getName(), fp.getPrice(), fp.getFreshness(), item.getQuantity()));
+					FarmProduct farmProduct = (FarmProduct) item.getItem();
+					bufferedWriter.write(String.format("FARM_PRODUCT#%s#%.2f#%d#%d",
+							farmProduct.getName(), farmProduct.getPrice(), farmProduct.getFreshness(), item.getQuantity()));
 				}
-				bw.newLine();
+				bufferedWriter.newLine();
 			}
 			
 			for (Animal animal : player.getAnimals()) {
-				bw.write(String.format("ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
+				bufferedWriter.write(String.format("ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
 						animal.getSymbol(), animal.getName(), animal.getType(), animal.getAnimalProduct(),
 						animal.getHarvestRate(), animal.getPosition().getX(), animal.getPosition().getY(),
 						animal.getPrice(), animal.isHarvestable()));
-				bw.newLine();
+				bufferedWriter.newLine();
 			}
 			
 			for (Plant plant : player.getPlants()) {
-				bw.write(String.format("PLANT#%c#%s#%d#%d#%d#%.2f#%b",
+				bufferedWriter.write(String.format("PLANT#%c#%s#%d#%d#%d#%.2f#%b",
 						plant.getSymbol(), plant.getName(), plant.getPosition().getX(), plant.getPosition().getY(),
 						plant.getGrowthTime(), plant.getPrice(), plant.isHarvestable()));
-				bw.newLine();
+				bufferedWriter.newLine();
 			}
 
-			// Save dev mode flag if enabled for this user
 			if (currentUser != null && currentUser.isDevMode()) {
-				bw.write(String.format("DEVMODE#%b", true));
-				bw.newLine();
+				bufferedWriter.write(String.format("DEViewModelODE#%b", true));
+				bufferedWriter.newLine();
 			}
 			
-			bw.close();
-		} catch (IOException e) {
+			bufferedWriter.close();
+		} catch (IOException exception) {
 			System.out.println("Error saving player data!");
 		}
 	}

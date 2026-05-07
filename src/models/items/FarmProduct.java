@@ -12,6 +12,10 @@ public class FarmProduct extends Item {
 		return freshness;
 	}
 
+	public void setFreshness(int freshness) {
+		this.freshness = freshness;
+	}
+
 	public boolean tickFreshness() {
 		freshness--;
 		return freshness <= 0;
