@@ -2,7 +2,8 @@ package util;
 
 import java.util.Random;
 
-import models.Player;
+import model.Player;
+import model.item.AnimalProductGrade;
 
 public class GradeUtils {
 	private Random random;
@@ -14,7 +15,7 @@ public class GradeUtils {
 		this.player = player;
 	}
 
-	public int getGrade() {
+    public AnimalProductGrade getGrade() {
         int gradeRandomValue = random.nextInt(100) + 1;
         int day = player.getDay();
 
@@ -22,20 +23,11 @@ public class GradeUtils {
         int grade3Chance = day / 2;
 
         if (gradeRandomValue <= grade2Chance) {
-            return 2;
+            return AnimalProductGrade.GRADE_2;
         } else if (gradeRandomValue <= grade2Chance + grade3Chance) {
-            return 3;
+            return AnimalProductGrade.GRADE_3;
         } else {
-            return 1;
+            return AnimalProductGrade.GRADE_1;
         }
     }
-	
-	public int getGradeMultiplier (int grade) {
-		if (grade == 1) 
-			return 1;
-		else if (grade == 2) 
-			return 2;
-		else 
-			return 5;
-	}
 }

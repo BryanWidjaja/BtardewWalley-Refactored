@@ -1,27 +1,28 @@
 package viewmodel;
 
-import databases.MapDatabase;
-import factories.AnimalFactoryProvider;
-import iterators.AnimalIterator;
-import iterators.InventoryIterator;
-import iterators.Iterator;
-import iterators.PlantIterator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.BiConsumer;
-import models.Animal;
-import models.Coordinate;
-import models.Plant;
-import models.PlayerItem;
-import models.items.AnimalProduct;
-import models.items.FarmProduct;
-import models.items.PlantSeed;
-import strategies.AnimalFarmMapStrategy;
-import strategies.FarmMapStrategy;
-import strategies.MapEventStrategy;
-import strategies.TownMapStrategy;
-import ui.views.GameMapView;
+
+import database.DatabaseRegistry;
+import factory.animal.AnimalFactoryProvider;
+import factory.plant.PlantFactoryProvider;
+import iterator.Iterator;
+import iterator.ListIterator;
+import model.Coordinate;
+import model.PlayerItem;
+import model.animal.Animal;
+import model.item.AnimalProduct;
+import model.item.AnimalProductGrade;
+import model.item.FarmProduct;
+import model.item.PlantSeed;
+import model.plants.Plant;
+import strategy.AnimalFarmMapStrategy;
+import strategy.FarmMapStrategy;
+import strategy.MapEventStrategy;
+import strategy.TownMapStrategy;
+import ui.view.GameMapView;
 import util.GradeUtils;
 
 public class MapViewModel {
@@ -78,7 +79,7 @@ public class MapViewModel {
     }
 
     public char[][] getCurrentMap() {
-        return MapDatabase.getDatabase().getMaps().get(playerViewModel.getCurrMapIndex());
+        return DatabaseRegistry.getList(char[][].class).get(playerViewModel.getCurrMapIndex());
     }
 
     public int getCurrentMapIndex() {
@@ -159,14 +160,14 @@ public class MapViewModel {
     }
 
     private void updateHarvest() {
-        Iterator<Animal> iterator = new AnimalIterator(playerViewModel.getAnimals());
+        Iterator<Animal> iterator = new ListIterator<>(playerViewModel.getAnimals());
         while (iterator.hasNext()) {
             iterator.getNext().tickHarvest();
         }
     }
 
     private void updateGrowthTime() {
-        Iterator<Plant> iterator = new PlantIterator(playerViewModel.getPlants());
+        Iterator<Plant> iterator = new ListIterator<>(playerViewModel.getPlants());
         while (iterator.hasNext()) {
             Plant plant = iterator.getNext();
             if (plant.tickGrowth()) {
@@ -177,12 +178,13 @@ public class MapViewModel {
     }
 
     private void updateFreshness() {
-        Iterator<PlayerItem> iterator = new InventoryIterator(playerViewModel.getInventory());
+        Iterator<PlayerItem> iterator = new ListIterator<>(playerViewModel.getInventory());
         while (iterator.hasNext()) {
             PlayerItem item = iterator.getNext();
             if (item.getItem() instanceof FarmProduct) {
                 FarmProduct farmProduct = (FarmProduct) item.getItem();
-                if (farmProduct.tickFreshness()) {
+                farmProduct.tickFreshness();
+                if (farmProduct.isExpired()) {
                     iterator.remove();
                 }
             }
@@ -190,7 +192,7 @@ public class MapViewModel {
     }
 
     public void insertPlant(PlantSeed seed, int x, int y) {
-        Plant plant = new Plant(seed.getSymbol(), seed.getName(), x, y,
+        Plant plant = PlantFactoryProvider.getFactory(seed.getName()).createPlant(x, y,
                 seed.getGrowthTime(), seed.getPrice(), false);
         playerViewModel.getPlants().add(plant);
     }
@@ -202,15 +204,14 @@ public class MapViewModel {
     }
 
     public void collectPlant(int plantX, int plantY) {
-        Iterator<Plant> iterator = new PlantIterator(playerViewModel.getPlants());
+        Iterator<Plant> iterator = new ListIterator<>(playerViewModel.getPlants());
         while (iterator.hasNext()) {
             Plant plant = iterator.getNext();
             if (plant.getPosition().getX() == plantX && plant.getPosition().getY() == plantY) {
-                int freshness = 5;
                 FarmProduct newProduct = new FarmProduct(
                         plant.getName(),
-                        (int) (plant.getPrice() * util.FreshnessUtils.getFreshnessMultiplier(freshness)),
-                        freshness);
+                        (int) (plant.getPrice() * 1.0), // Freshness is 5, multiplier is 1.0
+                        5);
                 playerViewModel.addItem(newProduct, 1);
                 iterator.remove();
                 GameMapView.PLANT_FARM_MAP[plantX][plantY] = '.';
@@ -223,6 +224,15 @@ public class MapViewModel {
     public void insertAnimal(String type, String name) {
         int height = GameMapView.ANIMAL_FARM_MAP.length;
         int width = GameMapView.ANIMAL_FARM_MAP[0].length;
+
+        Animal template = null;
+        for (Animal a : DatabaseRegistry.getList(Animal.class)) {
+            if (a.getType().equals(type)) {
+                template = a;
+                break;
+            }
+        }
+        if (template == null) return;
 
         while (true) {
             int animalX = random.nextInt(height);
@@ -241,7 +251,10 @@ public class MapViewModel {
             }
 
             if (!occupied) {
-                Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(name, animalX, animalY);
+                Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
+                        name, template.getAnimalProduct(),
+                        template.getDefaultHarvestRate(), template.getDefaultHarvestRate(),
+                        animalX, animalY, template.getPrice(), false);
                 playerViewModel.getAnimals().add(animal);
                 GameMapView.ANIMAL_FARM_MAP[animalX][animalY] = animal.getSymbol();
                 break;
@@ -250,16 +263,18 @@ public class MapViewModel {
     }
 
     public AnimalProduct collectAnimalProduct(Animal animal) {
-        int grade = gradeUtils.getGrade();
+        AnimalProductGrade grade = gradeUtils.getGrade();
+
+        String productName = animal.getAnimalProduct();
+        double basePrice = DatabaseRegistry.<String, Double>getMap(AnimalProduct.class).getOrDefault(productName, 0.0);
 
         AnimalProduct product = new AnimalProduct(
-                animal.getAnimalProduct(),
-                (int) (animal.getPrice() * gradeUtils.getGradeMultiplier(grade)),
+                productName,
+                (int) (basePrice * grade.getMultiplier()),
                 grade);
 
         playerViewModel.addItem(product, 1);
         animal.collectProduct();
-        product.setGrade(grade);
         return product;
     }
 
@@ -273,7 +288,7 @@ public class MapViewModel {
     }
 
     public void devModeClearAllPlayers() {
-        for (char[][] map : MapDatabase.getDatabase().getMaps()) {
+        for (char[][] map : DatabaseRegistry.getList(char[][].class)) {
             for (int i = 0; i < map.length; i++) {
                 for (int j = 0; j < map[i].length; j++) {
                     if (map[i][j] == 'P') {

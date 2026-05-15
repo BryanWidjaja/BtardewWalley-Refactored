@@ -1,8 +1,8 @@
 package util;
 
-import models.Player;
-import models.PlayerItem;
-import models.items.AnimalProduct;
+import model.Player;
+import model.PlayerItem;
+import model.item.AnimalProduct;
 
 public class AnimalProductUtils {
 	private Player player;

@@ -1,20 +1,14 @@
 package viewmodel;
 
-import java.util.ArrayList;
-import iterators.Iterator;
 import java.util.List;
 
-import iterators.AnimalIterator;
-import iterators.InventoryIterator;
-import models.Animal;
-import models.Coordinate;
-import models.Plant;
-import models.Player;
-import models.PlayerItem;
-import models.items.AnimalProduct;
-import models.items.FarmProduct;
-import models.items.Item;
-import models.items.PlantSeed;
+import model.Coordinate;
+import model.Player;
+import model.PlayerItem;
+import model.animal.Animal;
+import model.item.Item;
+import model.item.PlantSeed;
+import model.plants.Plant;
 
 public class PlayerViewModel {
     private Player player;
@@ -100,69 +94,23 @@ public class PlayerViewModel {
     }
 
     public List<PlantSeed> getPlayerSeeds() {
-        List<PlantSeed> seeds = new ArrayList<>();
-        for (PlayerItem item : player.getInventory()) {
-            if (item.getItem() instanceof PlantSeed) {
-                seeds.add((PlantSeed) item.getItem());
-            }
-        }
-        return seeds;
+        return player.getPlayerSeeds();
     }
 
     public void removeSeedFromInventory(PlantSeed seed) {
-        Iterator<PlayerItem> iterator = new InventoryIterator(player.getInventory());
-        while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
-            if (item.getItem() instanceof PlantSeed
-                    && item.getItem().getName().equals(seed.getName())) {
-                item.removeQuantity(1);
-                if (item.isEmpty()) {
-                    iterator.remove();
-                }
-                break;
-            }
-        }
+        player.removeSeedFromInventory(seed);
     }
 
     public int findAnimalProductIndex(int displayChoice) {
-        int counter = 1;
-        Iterator<PlayerItem> iterator = new InventoryIterator(player.getInventory());
-        while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
-            if (item.getItem() instanceof AnimalProduct) {
-                if (counter == displayChoice) {
-                    return player.getInventory().indexOf(item);
-                }
-                counter++;
-            }
-        }
-        return -1;
+        return player.findAnimalProductIndex(displayChoice);
     }
 
     public int findFarmProductIndex(int displayChoice) {
-        int counter = 1;
-        Iterator<PlayerItem> iterator = new InventoryIterator(player.getInventory());
-        while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
-            if (item.getItem() instanceof FarmProduct) {
-                if (counter == displayChoice) {
-                    return player.getInventory().indexOf(item);
-                }
-                counter++;
-            }
-        }
-        return -1;
+        return player.findFarmProductIndex(displayChoice);
     }
 
     public boolean isAnimalNameTaken(String name) {
-        Iterator<Animal> iterator = new AnimalIterator(player.getAnimals());
-        while (iterator.hasNext()) {
-            Animal animal = iterator.getNext();
-            if (animal.getName().equalsIgnoreCase(name.trim())) {
-                return true;
-            }
-        }
-        return false;
+        return player.isAnimalNameTaken(name);
     }
 
     public void advanceDay() { 

@@ -1,9 +1,9 @@
 package services.game;
 
-import ui.views.GameUIView;
 import util.StringUtils;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
+import ui.view.GameUIView;
 import util.ConsoleUtils;
 
 public class GameRenderingService {

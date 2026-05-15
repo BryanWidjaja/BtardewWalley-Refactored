@@ -1,8 +1,0 @@
-package commands;
-
-public interface Command {
-	void execute();
-	default boolean canExecute() {
-		return true;
-	}
-}

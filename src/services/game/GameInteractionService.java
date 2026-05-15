@@ -2,8 +2,9 @@ package services.game;
 
 import java.util.Map;
 import java.util.Scanner;
-import commands.Command;
-import models.User;
+
+import command.Command;
+import model.User;
 import viewmodel.GameEvent;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;

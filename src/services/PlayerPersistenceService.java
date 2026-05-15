@@ -1,9 +1,9 @@
 package services;
 
-import models.Player;
-import models.User;
-import services.loaders.PlayerDataLoader;
-import services.savers.PlayerDataSaver;
+import model.Player;
+import model.User;
+import services.loader.PlayerDataLoader;
+import services.saver.PlayerDataSaver;
 
 public class PlayerPersistenceService {
     private final PlayerDataLoader loader;

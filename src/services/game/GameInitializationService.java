@@ -5,15 +5,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
-import commands.*;
-import databases.ToolDatabase;
-import models.Player;
-import models.User;
-import models.items.AnimalProduct;
-import models.items.PlantSeed;
-import models.items.Tool;
+import command.*;
+import database.DatabaseRegistry;
+import model.Player;
+import model.User;
+import model.item.AnimalProduct;
+import model.item.AnimalProductGrade;
+import model.item.PlantSeed;
+import model.item.Tool;
 import services.StoreService;
-import ui.views.*;
+import services.UserRepository;
+import ui.view.*;
 import util.ConsoleUtils;
 import util.GradeUtils;
 import viewmodel.*;
@@ -44,7 +46,8 @@ public class GameInitializationService {
     }
 
     private void authenticateUser() {
-        AuthView authView = new AuthView(scanner, consoleUtils);
+        UserRepository userRepository = new UserRepository("system_data/users.txt");
+        AuthView authView = new AuthView(scanner, consoleUtils, userRepository);
         currentUser = authView.showMainMenu();
     }
 
@@ -73,14 +76,16 @@ public class GameInitializationService {
 
     private void setupCommands(Map<String, Object> views) {
         eventCommands = new HashMap<>();
-        eventCommands.put(GameEvent.TOOL_STORE, new OpenToolStoreCommand((ToolStoreView)views.get("tool"), storeViewModel, playerViewModel));
-        eventCommands.put(GameEvent.ANIMAL_STORE, new OpenAnimalStoreCommand((AnimalStoreView)views.get("animal"), storeViewModel, playerViewModel));
-        eventCommands.put(GameEvent.FARM_STORE, new OpenFarmStoreCommand((FarmStoreView)views.get("farm"), storeViewModel, playerViewModel));
-        eventCommands.put(GameEvent.INVENTORY, new OpenInventoryCommand((InventoryView)views.get("inventory"), playerViewModel));
-        eventCommands.put(GameEvent.SLEEP, new SleepCommand((SleepView)views.get("sleep"), mapViewModel));
-        eventCommands.put(GameEvent.PLANT_PROMPT, new PlantSeedCommand((PlantView)views.get("plant"), playerViewModel, mapViewModel));
-        eventCommands.put(GameEvent.COLLECT_ANIMAL, new CollectAnimalCommand((AnimalHarvestView)views.get("harvest"), playerViewModel, mapViewModel));
-        eventCommands.put(GameEvent.EXIT, new ExitGameCommand(mainViewModel));
+        eventCommands.put(GameEvent.TOOL_STORE, () -> ((ToolStoreView)views.get("tool")).show(storeViewModel, playerViewModel));
+        eventCommands.put(GameEvent.ANIMAL_STORE, () -> ((AnimalStoreView)views.get("animal")).show(storeViewModel, playerViewModel));
+        eventCommands.put(GameEvent.FARM_STORE, () -> ((FarmStoreView)views.get("farm")).show(storeViewModel, playerViewModel));
+        eventCommands.put(GameEvent.INVENTORY, () -> ((InventoryView)views.get("inventory")).show(playerViewModel));
+        eventCommands.put(GameEvent.SLEEP, () -> {
+            if (((SleepView)views.get("sleep")).showSleepPrompt()) mapViewModel.sleep();
+        });
+        eventCommands.put(GameEvent.PLANT_PROMPT, () -> ((PlantView)views.get("plant")).showPlantPrompt(playerViewModel, mapViewModel));
+        eventCommands.put(GameEvent.COLLECT_ANIMAL, () -> ((AnimalHarvestView)views.get("harvest")).showCollectAnimal(playerViewModel, mapViewModel));
+        eventCommands.put(GameEvent.EXIT, mainViewModel::shutdown);
 
         devModeCommands = new HashMap<>();
         devModeCommands.put('r', new DevModeCommand(currentUser, () -> {
@@ -94,17 +99,16 @@ public class GameInitializationService {
             for (int i = 0; i < types.length; i++) mapViewModel.insertAnimal(types[i], types[i] + (i % 3 + 1));
         }));
         devModeCommands.put('t', new DevModeCommand(currentUser, () -> {
-            for (Tool tool : ToolDatabase.getDatabase().getTools()) {
+            for (Tool tool : DatabaseRegistry.getList(Tool.class)) {
                 playerViewModel.addItem(new Tool(tool.getName(), (int) tool.getPrice()), 1);
             }
-            ToolDatabase.getDatabase().getTools().clear();
+            DatabaseRegistry.getList(Tool.class).clear();
         }));
         devModeCommands.put('p', new DevModeCommand(currentUser, () -> {
-            GradeUtils gradeUtils = storeViewModel.getGradeUtils();
-            int grade = gradeUtils.getGrade();
-            playerViewModel.addItem(new AnimalProduct("Egg", (int) (100 * gradeUtils.getGradeMultiplier(grade)), grade), 1);
-            playerViewModel.addItem(new AnimalProduct("Milk", (int) (300 * gradeUtils.getGradeMultiplier(grade)), grade), 1);
-            playerViewModel.addItem(new AnimalProduct("Wool", (int) (900 * gradeUtils.getGradeMultiplier(grade)), grade), 1);
+            AnimalProductGrade grade = storeViewModel.getGradeUtils().getGrade();
+            playerViewModel.addItem(new AnimalProduct("Egg", 100, grade), 1);
+            playerViewModel.addItem(new AnimalProduct("Milk", 300, grade), 1);
+            playerViewModel.addItem(new AnimalProduct("Wool", 800, grade), 1);
         }));
         devModeCommands.put('k', new DevModeCommand(currentUser, () -> {
             playerViewModel.addItem(new PlantSeed("Wheat", 50, 'w', 3), 10);

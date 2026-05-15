@@ -1,11 +1,11 @@
 package viewmodel;
 
-import models.User;
+import model.User;
 import services.PlayerPersistenceService;
-import services.loaders.AnimalLoader;
-import services.loaders.MapLoader;
-import services.loaders.SeedLoader;
-import services.loaders.ToolLoader;
+import services.loader.AnimalLoader;
+import services.loader.MapLoader;
+import services.loader.SeedLoader;
+import services.loader.ToolLoader;
 
 public class MainViewModel {
     private PlayerViewModel playerViewModel;

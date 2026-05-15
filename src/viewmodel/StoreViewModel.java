@@ -2,15 +2,14 @@ package viewmodel;
 
 import java.util.List;
 
-import models.Animal;
-import models.PlayerItem;
-import models.items.AnimalProduct;
-import models.items.FarmProduct;
-import models.items.PlantSeed;
-import models.items.Tool;
+import model.PlayerItem;
+import model.animal.Animal;
+import model.item.AnimalProduct;
+import model.item.FarmProduct;
+import model.item.PlantSeed;
+import model.item.Tool;
 import services.StoreService;
-import ui.views.GameMapView;
-import util.FreshnessUtils;
+import ui.view.GameMapView;
 import util.GradeUtils;
 
 public class StoreViewModel {
@@ -35,18 +34,22 @@ public class StoreViewModel {
     }
 
     public boolean buyTool(int choice) {
-        List<Tool> tools = getAvailableTools();
-        if (choice < 1 || choice > tools.size()) return false;
+        Tool selectedTool = getTool(choice);
+        if (selectedTool == null) return false;
 
-        Tool selectedTool = tools.get(choice - 1);
         int price = (int) selectedTool.getPrice();
-
         if (playerViewModel.spendMoney(price)) {
             playerViewModel.addItem(new Tool(selectedTool.getName(), price), 1);
-            tools.remove(selectedTool);
+            storeService.getTools().remove(selectedTool);
             return true;
         }
         return false;
+    }
+
+    public Tool getTool(int choice) {
+        List<Tool> tools = getAvailableTools();
+        if (choice < 1 || choice > tools.size()) return null;
+        return tools.get(choice - 1);
     }
 
     public boolean buyTool(String name) {
@@ -63,17 +66,21 @@ public class StoreViewModel {
     }
 
     public boolean buySeed(int choice, int quantity) {
-        List<PlantSeed> seeds = getAvailableSeeds();
-        if (choice < 1 || choice > seeds.size()) return false;
+        PlantSeed selectedSeed = getSeed(choice);
+        if (selectedSeed == null) return false;
 
-        PlantSeed selectedSeed = seeds.get(choice - 1);
         double totalPrice = selectedSeed.getPrice() * quantity;
-
         if (playerViewModel.spendMoney(totalPrice)) {
             playerViewModel.addItem(selectedSeed, quantity);
             return true;
         }
         return false;
+    }
+
+    public PlantSeed getSeed(int choice) {
+        List<PlantSeed> seeds = getAvailableSeeds();
+        if (choice < 1 || choice > seeds.size()) return null;
+        return seeds.get(choice - 1);
     }
 
     public boolean buySeed(String name, int quantity) {
@@ -90,16 +97,20 @@ public class StoreViewModel {
     }
 
     public boolean buyAnimal(int choice, String name) {
-        List<Animal> animals = getAvailableAnimals();
-        if (choice < 1 || choice > animals.size()) return false;
-
-        Animal selectedAnimal = animals.get(choice - 1);
+        Animal selectedAnimal = getAnimal(choice);
+        if (selectedAnimal == null) return false;
 
         if (playerViewModel.spendMoney(selectedAnimal.getPrice())) {
             mapViewModel.insertAnimal(selectedAnimal.getType(), name);
             return true;
         }
         return false;
+    }
+
+    public Animal getAnimal(int choice) {
+        List<Animal> animals = getAvailableAnimals();
+        if (choice < 1 || choice > animals.size()) return null;
+        return animals.get(choice - 1);
     }
 
     public boolean buyAnimal(String type, String name) {
@@ -129,9 +140,7 @@ public class StoreViewModel {
         PlayerItem selectedItem = playerViewModel.getInventory().get(selectedIndex);
         AnimalProduct product = (AnimalProduct) selectedItem.getItem();
 
-        playerViewModel.addMoney(
-                product.getPrice() * gradeUtils.getGradeMultiplier(product.getGrade()) * quantity
-        );
+        playerViewModel.addMoney(product.getSellingPrice() * quantity);
         playerViewModel.removeItemQuantity(selectedIndex, quantity);
         return true;
     }
@@ -143,9 +152,7 @@ public class StoreViewModel {
         PlayerItem selectedItem = playerViewModel.getInventory().get(selectedIndex);
         FarmProduct product = (FarmProduct) selectedItem.getItem();
 
-        playerViewModel.addMoney(
-                product.getPrice() * FreshnessUtils.getFreshnessMultiplier(product.getFreshness()) * 2 * quantity
-        );
+        playerViewModel.addMoney(product.getSellingPrice() * quantity);
         playerViewModel.removeItemQuantity(selectedIndex, quantity);
         return true;
     }

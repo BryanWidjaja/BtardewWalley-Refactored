@@ -1,6 +1,6 @@
 package app;
 
-import facades.GameFacade;
+import facade.GameFacade;
 
 public class Main {
     private GameFacade gameFacade;
