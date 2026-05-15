@@ -31,7 +31,15 @@ public class MenuComposite implements MenuComponent {
 
     @Override
     public void render() {
+        render(null);
+    }
+
+    public void render(Runnable afterLabel) {
         System.out.println(label);
+
+        if (afterLabel != null) {
+            afterLabel.run();
+        }
 
         for (int i = 0; i < children.size(); i++) {
             System.out.println((i + 1) + ". " + children.get(i).getLabel());

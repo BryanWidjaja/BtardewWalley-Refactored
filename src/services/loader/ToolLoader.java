@@ -8,6 +8,7 @@ import model.item.Tool;
 public class ToolLoader {
 	public static void loadAvailableTools () {
 		try {
+			DatabaseRegistry.getList(Tool.class).clear();
 			LineLoader toolLoader = parts -> {
 				String name = parts[0].trim();
 				int price = Integer.parseInt(parts[1].trim());

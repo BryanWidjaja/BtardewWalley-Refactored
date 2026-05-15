@@ -16,6 +16,7 @@ import model.animal.Animal;
 import model.item.AnimalProduct;
 import model.item.AnimalProductGrade;
 import model.item.FarmProduct;
+import model.item.FarmProductFreshness;
 import model.item.PlantSeed;
 import model.plants.Plant;
 import strategy.AnimalFarmMapStrategy;
@@ -111,10 +112,10 @@ public class MapViewModel {
         int newX = newPos.getX();
         int newY = newPos.getY();
 
-        int width = currMap.length;
-        int height = currMap[0].length;
+        int rows = currMap.length;
+        int cols = currMap[0].length;
 
-        if (newX < 0 || newX >= width || newY < 0 || newY >= height) {
+        if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) {
             return GameEvent.NONE;
         }
 
@@ -133,7 +134,7 @@ public class MapViewModel {
     }
 
     private boolean checkWall(char[][] map, int x, int y) {
-        String walls = "#+-_|/\\\"'`':,";
+        String walls = "#+-_|/\\\"'`:,";
         char tile = map[x][y];
 
         for (int i = 0; i < walls.length(); i++) {
@@ -210,8 +211,8 @@ public class MapViewModel {
             if (plant.getPosition().getX() == plantX && plant.getPosition().getY() == plantY) {
                 FarmProduct newProduct = new FarmProduct(
                         plant.getName(),
-                        (int) (plant.getPrice() * 1.0), // Freshness is 5, multiplier is 1.0
-                        5);
+                        plant.getPrice(),
+                        FarmProductFreshness.LEVEL_5.getLevel());
                 playerViewModel.addItem(newProduct, 1);
                 iterator.remove();
                 GameMapView.PLANT_FARM_MAP[plantX][plantY] = '.';
@@ -222,8 +223,8 @@ public class MapViewModel {
     }
 
     public void insertAnimal(String type, String name) {
-        int height = GameMapView.ANIMAL_FARM_MAP.length;
-        int width = GameMapView.ANIMAL_FARM_MAP[0].length;
+        int rows = GameMapView.ANIMAL_FARM_MAP.length;
+        int cols = GameMapView.ANIMAL_FARM_MAP[0].length;
 
         Animal template = null;
         for (Animal a : DatabaseRegistry.getList(Animal.class)) {
@@ -235,8 +236,8 @@ public class MapViewModel {
         if (template == null) return;
 
         while (true) {
-            int animalX = random.nextInt(height);
-            int animalY = random.nextInt(width);
+            int animalX = random.nextInt(rows);
+            int animalY = random.nextInt(cols);
 
             if (GameMapView.ANIMAL_FARM_MAP[animalX][animalY] != ' ') {
                 continue;
@@ -254,7 +255,7 @@ public class MapViewModel {
                 Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
                         name, template.getAnimalProduct(),
                         template.getDefaultHarvestRate(), template.getDefaultHarvestRate(),
-                        animalX, animalY, template.getPrice(), false);
+                        animalX, animalY, template.getPrice(), true);
                 playerViewModel.getAnimals().add(animal);
                 GameMapView.ANIMAL_FARM_MAP[animalX][animalY] = animal.getSymbol();
                 break;

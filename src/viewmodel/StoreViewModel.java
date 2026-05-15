@@ -1,6 +1,7 @@
 package viewmodel;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import model.PlayerItem;
 import model.animal.Animal;
@@ -30,7 +31,9 @@ public class StoreViewModel {
     }
 
     public List<Tool> getAvailableTools() {
-        return storeService.getTools();
+        return storeService.getTools().stream()
+                .filter(tool -> !playerViewModel.hasItem(tool.getName()))
+                .collect(Collectors.toList());
     }
 
     public boolean buyTool(int choice) {
@@ -40,7 +43,6 @@ public class StoreViewModel {
         int price = (int) selectedTool.getPrice();
         if (playerViewModel.spendMoney(price)) {
             playerViewModel.addItem(new Tool(selectedTool.getName(), price), 1);
-            storeService.getTools().remove(selectedTool);
             return true;
         }
         return false;
@@ -55,9 +57,9 @@ public class StoreViewModel {
     public boolean buyTool(String name) {
         Tool tool = storeService.findTool(name);
         if (tool == null) return false;
+        if (playerViewModel.hasItem(tool.getName())) return false;
         if (!playerViewModel.spendMoney(tool.getPrice())) return false;
         playerViewModel.addItem(new Tool(tool.getName(), (int) tool.getPrice()), 1);
-        storeService.removeTool(tool);
         return true;
     }
 

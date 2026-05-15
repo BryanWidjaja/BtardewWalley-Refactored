@@ -37,6 +37,6 @@ public class FarmProduct extends Item {
 
 	@Override
 	public String toString() {
-		return String.format("%s(%d)", getName(), freshness);
+		return String.format("%s(%d)", getName(), freshness.getLevel());
 	}
 }

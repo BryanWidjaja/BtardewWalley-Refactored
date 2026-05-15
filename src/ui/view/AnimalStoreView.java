@@ -29,8 +29,7 @@ public class AnimalStoreView {
 
         while (true) {
             consoleUtils.spaceConsole();
-            System.out.printf("Money: %.2f$\n", playerViewModel.getMoney());
-            menu.render();
+            menu.render(() -> System.out.printf("Money: %.2f$\n", playerViewModel.getMoney()));
 
             String input = scanner.nextLine().trim();
             if (input.equals("4")) {

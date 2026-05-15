@@ -8,6 +8,7 @@ import model.item.PlantSeed;
 public class SeedLoader {
 	public static void loadAvailableSeeds () {
 		try {
+			DatabaseRegistry.getList(PlantSeed.class).clear();
 			LineLoader seedLoader = parts -> {
 				String name = parts[0].trim();
 				int growthTime = Integer.parseInt(parts[1].trim());

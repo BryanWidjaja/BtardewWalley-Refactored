@@ -60,7 +60,9 @@ public abstract class BuyItemCommand<T> implements Command {
     protected abstract void performPurchase(int choice, T item);
 
     protected boolean handleEmptyItems() {
-        return false;
+        System.out.println("Nothing available to buy!");
+        consoleUtils.pause();
+        return true;
     }
 
     protected int getUserSelection(int maxChoice) {

@@ -1,9 +1,11 @@
 package model.item;
 
 public enum FarmProductFreshness {
-    HIGH(5, 1.0),
-    MEDIUM(3, 0.5),
-    LOW(1, 0.25),
+    LEVEL_5(5, 1.0),
+    LEVEL_4(4, 1.0),
+    LEVEL_3(3, 0.5),
+    LEVEL_2(2, 0.5),
+    LEVEL_1(1, 0.25),
     EXPIRED(0, 0.0);
 
     private final int level;

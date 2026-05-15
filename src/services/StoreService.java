@@ -25,10 +25,6 @@ public class StoreService {
         return DatabaseRegistry.findOne(Tool.class, tool -> tool.getName().equals(name));
     }
 
-    public void removeTool(Tool tool) {
-        getTools().remove(tool);
-    }
-
     public PlantSeed findSeed(String name) {
         return DatabaseRegistry.findOne(PlantSeed.class, seed -> seed.getName().equals(name));
     }

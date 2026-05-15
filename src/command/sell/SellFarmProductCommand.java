@@ -36,10 +36,10 @@ public class SellFarmProductCommand extends SellProductCommand<FarmProduct> {
         for (PlayerItem item : items) {
             FarmProduct fp = (FarmProduct) item.getItem();
             System.out.printf(
-                    "| %-3d | %-10s | %-10s | %-10d | %-10.1f |\n",
-                    counter++, 
-                    fp.getName(), 
-                    fp.getFreshness().name(), 
+                    "| %-3d | %-10s | %-10d | %-10d | %-10.1f |\n",
+                    counter++,
+                    fp.getName(),
+                    fp.getFreshness().getLevel(),
                     item.getQuantity(),
                     fp.getSellingPrice()
             );

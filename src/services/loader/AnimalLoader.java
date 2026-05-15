@@ -12,6 +12,9 @@ import util.FileLineReader;
 public class AnimalLoader {
 	public static void loadAvailableAnimals () {
 		try {
+			DatabaseRegistry.getList(Animal.class).clear();
+			DatabaseRegistry.<String, Double>getMap(AnimalProduct.class).clear();
+
 			List<String[]> animalRows = FileLineReader.readRows("system_data/animals.txt");
 			List<String[]> productRows = FileLineReader.readRows("system_data/animal_products.txt");
 

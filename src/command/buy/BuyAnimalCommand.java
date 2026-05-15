@@ -61,18 +61,23 @@ public class BuyAnimalCommand extends BuyItemCommand<Animal> {
     }
 
     private String getAnimalName() {
-        String name = null;
-        boolean nameTaken;
-
-        do {
+        while (true) {
             System.out.print("Input new farm animal's name [<= 15 characters]: ");
-            name = sc.nextLine();
+            String name = sc.nextLine().trim();
 
-            nameTaken = playerViewModel.isAnimalNameTaken(name);
-            if (nameTaken) {
-                System.out.println("Name already taken!");
+            if (name.isEmpty()) {
+                System.out.println("Name cannot be empty!");
+                continue;
             }
-        } while (name.length() > 15 || name.trim().isEmpty() || nameTaken);
-        return name;
+            if (name.length() > 15) {
+                System.out.println("Name must be 15 characters or fewer!");
+                continue;
+            }
+            if (playerViewModel.isAnimalNameTaken(name)) {
+                System.out.println("Name already taken!");
+                continue;
+            }
+            return name;
+        }
     }
 }

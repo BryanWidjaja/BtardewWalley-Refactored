@@ -3,7 +3,7 @@ package model.animal;
 import model.Coordinate;
 
 public class SheepBuilder implements AnimalBuilder {
-    private char symbol = 's';
+    private char symbol = 'S';
     private String name;
     private String type = "Sheep";
     private String animalProduct;

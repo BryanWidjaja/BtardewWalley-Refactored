@@ -1,7 +1,6 @@
 package services.loader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +8,6 @@ import java.util.Map;
 import database.DatabaseRegistry;
 import factory.animal.AnimalFactoryProvider;
 import factory.plant.PlantFactoryProvider;
-import iterator.Iterator;
-import iterator.ListIterator;
 import model.Player;
 import model.PlayerItem;
 import model.User;
@@ -46,29 +43,17 @@ public class PlayerDataLoader {
 				if (handler != null) handler.load(parts);
 			};
 			dispatcher.loadFile(saveFile.getPath());
-
-			Iterator<Tool> iterator = new ListIterator<>(DatabaseRegistry.getList(Tool.class));
-			while (iterator.hasNext()) {
-				Tool tool = iterator.getNext();
-				for (PlayerItem item : player.getInventory()) {
-					if (item.getItem() instanceof Tool && item.getItem().getName().equals(tool.getName())) {
-						iterator.remove();
-						break;
-					}
-				}
-			}
-			
-		} catch (FileNotFoundException exception) {
-
 		} catch (IOException exception) {
 			System.out.println("Error loading player data!");
+		} catch (RuntimeException exception) {
+			System.out.println("Save file is corrupted or malformed!");
 		}
 	}
 
     private void initLoaders() {
         loaders = new HashMap<>();
         
-        loaders.put("DEViewModelODE", parts -> {
+        loaders.put("DEVMODE", parts -> {
             if (parts.length > 1) {
                 currentUser.setDevMode(Boolean.parseBoolean(parts[1]));
             }
@@ -88,8 +73,17 @@ public class PlayerDataLoader {
         loaders.put("TOOL", parts -> {
             String toolName = parts[1];
             int toolQuantity = Integer.parseInt(parts[2]);
+
+            int toolPrice = 0;
+            for (Tool template : DatabaseRegistry.getList(Tool.class)) {
+                if (template.getName().equals(toolName)) {
+                    toolPrice = (int) template.getPrice();
+                    break;
+                }
+            }
+
             player.getInventory().add(new PlayerItem(
-                    new Tool(toolName, 0), toolQuantity));
+                    new Tool(toolName, toolPrice), toolQuantity));
         });
         
         loaders.put("SEED", parts -> {
