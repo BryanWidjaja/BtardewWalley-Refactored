@@ -1,10 +1,11 @@
 package services.game;
 
+import ui.view.GameUIView;
+import ui.view.MapBoard;
+import util.ConsoleUtils;
 import util.StringUtils;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
-import ui.view.GameUIView;
-import util.ConsoleUtils;
 
 public class GameRenderingService {
     private final MapViewModel mapViewModel;
@@ -19,59 +20,53 @@ public class GameRenderingService {
 
     public void render() {
         consoleUtils.spaceConsole();
-        char[][] currMap = mapViewModel.getCurrentMap();
+        char[][] map = preparedMap();
+        char[][] infoPanel = GameUIView.buildInfoPanel(playerViewModel.getDay(), playerViewModel.getMoney());
+        char[][] keybindPanel = GameUIView.PLAYER_KEYBINDS_UI;
 
-        currMap[playerViewModel.getPosition().getX()]
-               [playerViewModel.getPosition().getY()] = 'P';
+        renderRows(map, infoPanel, keybindPanel);
+    }
 
-        char[][] infoUI = new char[GameUIView.PLAYER_INFO_UI.length][];
-        for (int i = 0; i < GameUIView.PLAYER_INFO_UI.length; i++) {
-            infoUI[i] = GameUIView.PLAYER_INFO_UI[i].clone();
-        }
+    private char[][] preparedMap() {
+        char[][] map = mapViewModel.getCurrentMap();
+        map[playerViewModel.getPosition().getX()][playerViewModel.getPosition().getY()] = MapBoard.PLAYER_TILE;
+        return map;
+    }
 
-        char[][] keybindUI = GameUIView.PLAYER_KEYBINDS_UI;
-
-        for (int i = 1; i <= 2; i++) {
-            String line = new String(infoUI[i]);
-            int colon = line.indexOf(":");
-            String value = i == 1
-                    ? String.valueOf(playerViewModel.getDay())
-                    : String.valueOf(playerViewModel.getMoney());
-            int width = 16;
-            line = line.substring(0, colon + 2)
-                    + String.format("%-" + width + "s", value) + "#";
-            infoUI[i] = line.toCharArray();
-        }
-
-        int mapHeight = currMap.length;
-        int mapWidth = currMap[0].length;
-        int uiHeight = infoUI.length + 1 + keybindUI.length;
+    private void renderRows(char[][] map, char[][] infoPanel, char[][] keybindPanel) {
+        int mapHeight = map.length;
+        int mapWidth = map[0].length;
+        int uiHeight = infoPanel.length + 1 + keybindPanel.length;
         int totalRows = Math.max(mapHeight, uiHeight);
 
         for (int row = 0; row < totalRows; row++) {
             StringBuilder line = new StringBuilder();
-
-            if (row < mapHeight) {
-                for (int col = 0; col < currMap[row].length; col++) {
-                    line.append(StringUtils.colorize(currMap[row][col]));
-                }
-            } else {
-                line.append(" ".repeat(mapWidth));
-            }
-
+            appendMapRow(line, map, row, mapWidth);
             line.append("  ");
-
-            if (row < infoUI.length) {
-                line.append(new String(infoUI[row]));
-            } else if (row == infoUI.length) {
-                line.append(" ".repeat(infoUI[0].length));
-            } else if (row < infoUI.length + 1 + keybindUI.length) {
-                line.append(new String(keybindUI[row - infoUI.length - 1]));
-            } else {
-                line.append(" ".repeat(keybindUI[0].length));
-            }
-
+            appendUIRow(line, infoPanel, keybindPanel, row);
             System.out.println(line);
+        }
+    }
+
+    private void appendMapRow(StringBuilder line, char[][] map, int row, int mapWidth) {
+        if (row >= map.length) {
+            line.append(" ".repeat(mapWidth));
+            return;
+        }
+        for (int col = 0; col < map[row].length; col++) {
+            line.append(StringUtils.colorize(map[row][col]));
+        }
+    }
+
+    private void appendUIRow(StringBuilder line, char[][] infoPanel, char[][] keybindPanel, int row) {
+        if (row < infoPanel.length) {
+            line.append(new String(infoPanel[row]));
+        } else if (row == infoPanel.length) {
+            line.append(" ".repeat(infoPanel[0].length));
+        } else if (row < infoPanel.length + 1 + keybindPanel.length) {
+            line.append(new String(keybindPanel[row - infoPanel.length - 1]));
+        } else {
+            line.append(" ".repeat(keybindPanel[0].length));
         }
     }
 }

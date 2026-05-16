@@ -1,71 +1,122 @@
 package ui.view;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 import model.User;
 import services.UserRepository;
-import services.UserValidationService;
 import util.ConsoleUtils;
 
 public class AuthView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
-    private UserRepository userRepository;
+    private static final String CANCEL_INPUT = "0";
+
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
+    private final UserRepository userRepository;
+    private final Map<Integer, Supplier<User>> menuActions = new HashMap<>();
 
     public AuthView(Scanner scanner, ConsoleUtils consoleUtils, UserRepository userRepository) {
         this.scanner = scanner;
         this.consoleUtils = consoleUtils;
         this.userRepository = userRepository;
+
+        menuActions.put(1, this::showLogin);
+        menuActions.put(2, this::showRegister);
+        menuActions.put(3, () -> {
+            TutorialView.showTutorial(scanner, consoleUtils);
+            return null;
+        });
+        menuActions.put(4, () -> {
+            System.out.println("Goodbye!");
+            System.exit(0);
+            return null;
+        });
     }
 
     public User showMainMenu() {
         while (true) {
             consoleUtils.spaceConsole();
-            System.out.println("                                                                                   ");
-            System.out.println("    ▄▄▄                                          ▄▄▄              ▄▄ ▄▄             ");
-            System.out.println("   ██▀▀█▄ █▄               █▄                   █▀██  ██  ██▀▀     ██ ██            ");
-            System.out.println("   ██ ▄█▀▄██▄      ▄       ██                     ██  ██  ██       ██ ██            ");
-            System.out.println("   ██▀▀█▄ ██ ▄▀▀█▄ ████▄▄████ ▄█▀█▄▀█▄ █▄ ██▀     ██  ██  ██ ▄▀▀█▄ ██ ██ ▄█▀█▄ ██ ██");
-            System.out.println(" ▄ ██  ▄█ ██ ▄█▀██ ██   ██ ██ ██▄█▀ ██▄██▄██      ██▄ ██▄ ██ ▄█▀██ ██ ██ ██▄█▀ ██▄██");
-            System.out.println(" ▀██████▀▄██▄▀█▄██▄█▀  ▄█▀███▄▀█▄▄▄  ▀██▀██▀      ▀████▀███▀▄▀█▄██▄██▄██▄▀█▄▄▄▄▄▀██▀");
-            System.out.println("                                                                                 ██ ");
-            System.out.println("                                                                               ▀▀▀  ");
-            System.out.println();
+            renderBanner();
+            renderMenuOptions();
+            Integer choice = readMenuChoice();
+            if (choice == null) {
+                continue;
+            }
 
-            System.out.println("1. Login");
-            System.out.println("2. Register");
-            System.out.println("3. Tutorial");
-            System.out.println("4. Exit");
-            System.out.print(">> ");
-
-            try {
-                int choice = scanner.nextInt();
-                scanner.nextLine();
-
-                switch (choice) {
-                    case 1:
-                        User loginUser = showLogin();
-                        if (loginUser != null) return loginUser;
-                        break;
-                    case 2:
-                        User registeredUser = showRegister();
-                        if (registeredUser != null) return registeredUser;
-                        break;
-                    case 3:
-                        TutorialView.showTutorial(scanner, consoleUtils);
-                        break;
-                    case 4:
-                        System.out.println("Goodbye!");
-                        System.exit(0);
-                }
-            } catch (Exception exception) {
-                scanner.nextLine();
+            User result = dispatchChoice(choice);
+            if (result != null) {
+                return result;
             }
         }
     }
 
+    private void renderBanner() {
+        System.out.println("                                                                                   ");
+        System.out.println("    ▄▄▄                                          ▄▄▄              ▄▄ ▄▄             ");
+        System.out.println("   ██▀▀█▄ █▄               █▄                   █▀██  ██  ██▀▀     ██ ██            ");
+        System.out.println("   ██ ▄█▀▄██▄      ▄       ██                     ██  ██  ██       ██ ██            ");
+        System.out.println("   ██▀▀█▄ ██ ▄▀▀█▄ ████▄▄████ ▄█▀█▄▀█▄ █▄ ██▀     ██  ██  ██ ▄▀▀█▄ ██ ██ ▄█▀█▄ ██ ██");
+        System.out.println(" ▄ ██  ▄█ ██ ▄█▀██ ██   ██ ██ ██▄█▀ ██▄██▄██      ██▄ ██▄ ██ ▄█▀██ ██ ██ ██▄█▀ ██▄██");
+        System.out.println(" ▀██████▀▄██▄▀█▄██▄█▀  ▄█▀███▄▀█▄▄▄  ▀██▀██▀      ▀████▀███▀▄▀█▄██▄██▄██▄▀█▄▄▄▄▄▀██▀");
+        System.out.println("                                                                                 ██ ");
+        System.out.println("                                                                               ▀▀▀  ");
+        System.out.println();
+    }
+
+    private void renderMenuOptions() {
+        System.out.println("1. Login");
+        System.out.println("2. Register");
+        System.out.println("3. Tutorial");
+        System.out.println("4. Exit");
+        System.out.print(">> ");
+    }
+
+    private Integer readMenuChoice() {
+        try {
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            return choice;
+        } catch (Exception exception) {
+            scanner.nextLine();
+            return null;
+        }
+    }
+
+    private User dispatchChoice(int choice) {
+        Supplier<User> action = menuActions.get(choice);
+        if (action == null) {
+            return null;
+        }
+        return action.get();
+    }
+
     private User showLogin() {
         consoleUtils.spaceConsole();
+        renderLoginBanner();
+
+        String username = readOrCancel("Username (0 to go back): ");
+        if (username == null) {
+            return null;
+        }
+        String password = readOrCancel("Password (0 to go back): ");
+        if (password == null) {
+            return null;
+        }
+
+        User user = userRepository.authenticate(username, password);
+        if (user != null) {
+            System.out.println("Login successful!");
+            consoleUtils.pause();
+            return user;
+        }
+        System.out.println("Invalid username or password!");
+        consoleUtils.pause();
+        return null;
+    }
+
+    private void renderLoginBanner() {
         System.out.println(" _                 _       ");
         System.out.println("| |               (_)      ");
         System.out.println("| |     ___   __ _ _ _ __  ");
@@ -75,29 +126,29 @@ public class AuthView {
         System.out.println("              __/ |        ");
         System.out.println("             |___/         ");
         System.out.println();
-
-        System.out.print("Username (0 to go back): ");
-        String username = scanner.nextLine().trim();
-        if (username.equals("0")) return null;
-
-        System.out.print("Password (0 to go back): ");
-        String password = scanner.nextLine().trim();
-        if (password.equals("0")) return null;
-
-        User user = userRepository.authenticate(username, password);
-        if (user != null) {
-            System.out.println("Login successful!");
-            consoleUtils.pause();
-            return user;
-        } else {
-            System.out.println("Invalid username or password!");
-            consoleUtils.pause();
-            return null;
-        }
     }
 
     private User showRegister() {
         consoleUtils.spaceConsole();
+        renderRegisterBanner();
+
+        String username = promptUsername();
+        if (username == null) {
+            return null;
+        }
+        String password = promptPassword();
+        if (password == null) {
+            return null;
+        }
+
+        userRepository.register(username, password);
+        User user = new User(username, password);
+        System.out.println("Registration successful!");
+        consoleUtils.pause();
+        return user;
+    }
+
+    private void renderRegisterBanner() {
         System.out.println("______           _     _            ");
         System.out.println("| ___ \\         (_)   | |           ");
         System.out.println("| |_/ /___  __ _ _ ___| |_ ___ _ __ ");
@@ -107,46 +158,48 @@ public class AuthView {
         System.out.println("            __/ |                   ");
         System.out.println("           |___/                    ");
         System.out.println();
+    }
 
-        String username;
+    private String promptUsername() {
         while (true) {
-            System.out.print("Username (>= 8 characters) [0 to go back]: ");
-            username = scanner.nextLine().trim();
+            String username = readOrCancel("Username (>= 8 characters) [0 to go back]: ");
+            if (username == null) {
+                return null;
+            }
 
-            if (username.equals("0")) return null;
-
-            if (!UserValidationService.isValidUsername(username)) {
+            if (!User.isValidUsername(username)) {
                 System.out.println("Username must be at least 8 characters!");
                 continue;
             }
-
             if (userRepository.isUsernameTaken(username)) {
                 System.out.println("Username already taken!");
                 continue;
             }
-
-            break;
+            return username;
         }
+    }
 
-        String password;
+    private String promptPassword() {
         while (true) {
-            System.out.print("Password (>= 8 characters, at least 1 letter and 1 number) [0 to go back]: ");
-            password = scanner.nextLine().trim();
+            String password = readOrCancel("Password (>= 8 characters, at least 1 letter and 1 number) [0 to go back]: ");
+            if (password == null) {
+                return null;
+            }
 
-            if (password.equals("0")) return null;
-
-            if (!UserValidationService.isValidPassword(password)) {
+            if (!User.isValidPassword(password)) {
                 System.out.println("Password must be at least 8 characters and contain at least 1 letter and 1 number!");
                 continue;
             }
-
-            break;
+            return password;
         }
+    }
 
-        userRepository.register(username, password);
-        User user = new User(username, password);
-        System.out.println("Registration successful!");
-        consoleUtils.pause();
-        return user;
+    private String readOrCancel(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
+        if (input.equals(CANCEL_INPUT)) {
+            return null;
+        }
+        return input;
     }
 }

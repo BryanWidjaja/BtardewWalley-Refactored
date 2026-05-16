@@ -20,16 +20,4 @@ public class StoreService {
     public List<Animal> getAnimals() {
         return DatabaseRegistry.getList(Animal.class);
     }
-
-    public Tool findTool(String name) {
-        return DatabaseRegistry.findOne(Tool.class, tool -> tool.getName().equals(name));
-    }
-
-    public PlantSeed findSeed(String name) {
-        return DatabaseRegistry.findOne(PlantSeed.class, seed -> seed.getName().equals(name));
-    }
-
-    public Animal findAnimalTemplate(String type) {
-        return DatabaseRegistry.findOne(Animal.class, animal -> animal.getType().equals(type));
-    }
 }

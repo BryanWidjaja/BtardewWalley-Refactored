@@ -1,6 +1,7 @@
 package viewmodel;
 
 import java.util.List;
+import java.util.Locale;
 
 import model.Coordinate;
 import model.Player;
@@ -13,68 +14,72 @@ import model.plants.Plant;
 public class PlayerViewModel {
     private Player player;
 
-    public PlayerViewModel(Player player) { 
-        this.player = player; 
+    public PlayerViewModel(Player player) {
+        this.player = player;
     }
 
-    public double getMoney() { 
-        return player.getMoney(); 
+    public Player getPlayer() {
+        return player;
     }
 
-    public void setMoney(double value) { 
-        player.setMoney(value); 
+    public double getMoney() {
+        return player.getMoney();
     }
 
-    public List<PlayerItem> getInventory() { 
-        return player.getInventory(); 
+    public void setMoney(double value) {
+        player.setMoney(value);
+    }
+
+    public String getFormattedMoney() {
+        return String.format(Locale.ROOT, "%.2f$", player.getMoney());
+    }
+
+    public void addMoney(double value) {
+        player.addMoney(value);
+    }
+
+    public boolean spendMoney(double amount) {
+        return player.spendMoney(amount);
+    }
+
+    public List<PlayerItem> getInventory() {
+        return player.getInventory();
     }
 
     public List<Animal> getAnimals() {
         return player.getAnimals();
     }
 
-    public List<Plant> getPlants() { 
-        return player.getPlants(); 
+    public List<Plant> getPlants() {
+        return player.getPlants();
     }
 
-    public int getDay() { 
-        return player.getDay(); 
+    public int getDay() {
+        return player.getDay();
     }
 
-    public Coordinate getPosition() { 
-        return player.getPosition(); 
+    public Coordinate getPosition() {
+        return player.getPosition();
     }
 
-    public int getCurrMapIndex() { 
-        return player.getCurrMapIndex(); 
+    public int getCurrMapIndex() {
+        return player.getCurrMapIndex();
     }
 
-    public void setCurrMapIndex(int index) { 
-        player.setCurrMapIndex(index); 
+    public void setCurrMapIndex(int index) {
+        player.setCurrMapIndex(index);
     }
 
-    public char getCurrTile() { 
-        return player.getCurrTile(); 
+    public char getCurrTile() {
+        return player.getCurrTile();
     }
 
-    public void setCurrTile(char tile) { 
-        player.setCurrTile(tile); 
+    public void setCurrTile(char tile) {
+        player.setCurrTile(tile);
     }
 
-    public String getName() { 
-        return player.getName(); 
-    }
-
-    public Player getPlayer() { 
-        return player; 
-    }
-
-    public void addMoney(double value) { 
-        player.addMoney(value); 
-    }
-
-    public boolean spendMoney(double amount) { 
-        return player.spendMoney(amount); 
+    public String getName() {
+        return player.getName();
     }
 
     public void addItem(Item item, int quantity) {
@@ -93,6 +98,10 @@ public class PlayerViewModel {
         return player.findItemsByType(type);
     }
 
+    public <T extends Item> int findItemIndex(Class<T> type, int displayChoice) {
+        return player.findItemIndex(type, displayChoice);
+    }
+
     public List<PlantSeed> getPlayerSeeds() {
         return player.getPlayerSeeds();
     }
@@ -101,19 +110,15 @@ public class PlayerViewModel {
         player.removeSeedFromInventory(seed);
     }
 
-    public int findAnimalProductIndex(int displayChoice) {
-        return player.findAnimalProductIndex(displayChoice);
-    }
-
-    public int findFarmProductIndex(int displayChoice) {
-        return player.findFarmProductIndex(displayChoice);
+    public Animal findAnimalAt(int x, int y) {
+        return player.findAnimalAt(x, y);
     }
 
     public boolean isAnimalNameTaken(String name) {
         return player.isAnimalNameTaken(name);
     }
 
-    public void advanceDay() { 
-        player.advanceDay(); 
+    public void advanceDay() {
+        player.advanceDay();
     }
 }

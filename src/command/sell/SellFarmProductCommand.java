@@ -34,14 +34,14 @@ public class SellFarmProductCommand extends SellProductCommand<FarmProduct> {
 
         int counter = 1;
         for (PlayerItem item : items) {
-            FarmProduct fp = (FarmProduct) item.getItem();
+            FarmProduct farmProduct = (FarmProduct) item.getItem();
             System.out.printf(
                     "| %-3d | %-10s | %-10d | %-10d | %-10.1f |\n",
                     counter++,
-                    fp.getName(),
-                    fp.getFreshness().getLevel(),
+                    farmProduct.getName(),
+                    farmProduct.getFreshness().getLevel(),
                     item.getQuantity(),
-                    fp.getSellingPrice()
+                    farmProduct.getSellingPrice()
             );
         }
         System.out.println("===========================================================");

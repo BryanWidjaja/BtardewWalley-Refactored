@@ -22,8 +22,10 @@ public enum AnimalProductGrade {
     }
 
     public static AnimalProductGrade fromLevel(int level) {
-        for (AnimalProductGrade g : values()) {
-            if (g.level == level) return g;
+        for (AnimalProductGrade grade : values()) {
+            if (grade.level == level) {
+                return grade;
+            }
         }
         return GRADE_1;
     }

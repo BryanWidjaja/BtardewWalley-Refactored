@@ -13,10 +13,10 @@ public class ViewAnimalProductsCommand extends ViewInventoryItemsCommand<AnimalP
 
     @Override
     protected void displayItem(int index, PlayerItem item) {
-        AnimalProduct ap = getActualItem(item);
+        AnimalProduct animalProduct = getActualItem(item);
         System.out.printf("%d. %s(%d) - %d\n", index,
-                ap.getName(),
-                ap.getGrade().getLevel(),
+                animalProduct.getName(),
+                animalProduct.getGrade().getLevel(),
                 item.getQuantity());
     }
 

@@ -9,8 +9,11 @@ import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 
 public class AnimalHarvestView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
+    private static final int CHOICE_TAKE = 1;
+    private static final int CHOICE_LEAVE = 2;
+
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
 
     public AnimalHarvestView(Scanner scanner, ConsoleUtils consoleUtils) {
         this.scanner = scanner;
@@ -23,50 +26,62 @@ public class AnimalHarvestView {
             return;
         }
 
-        int choice = 0;
         while (true) {
-            System.out.printf("Want to take %s %s?\n", StringUtils.possessive(animal.getName()), animal.getAnimalProduct());
-            System.out.println("1. Take");
-            System.out.println("2. Don't take");
-            System.out.print(">> ");
-            try {
-                choice = scanner.nextInt();
-                scanner.nextLine();
-
-                if (choice == 1) {
-                    if (animal.getSymbol() == 'C' && !playerViewModel.hasItem("Bucket")) {
-                        System.out.printf(
-                                "You don't have a bucket to get %s %s\n",
-                                StringUtils.possessive(animal.getName()),
-                                animal.getAnimalProduct()
-                        );
-                        consoleUtils.pause();
-                        return;
-                    } else if (animal.getSymbol() == 'S' && !playerViewModel.hasItem("Shears")) {
-                        System.out.printf(
-                                "You don't have shears to get %s %s\n",
-                                StringUtils.possessive(animal.getName()),
-                                animal.getAnimalProduct()
-                        );
-                        consoleUtils.pause();
-                        return;
-                    } else {
-                        mapViewModel.collectAnimalProduct(animal);
-                        break;
-                    }
-                }
-
-                if (choice == 2) {
-                    break;
-                }
-
-                if (choice < 1 || choice > 2) {
-                    System.out.println("Invalid range number input!");
-                    consoleUtils.pause();
-                }
-            } catch (Exception exception) {
-                scanner.nextLine();
+            renderPrompt(animal);
+            int choice = readChoice();
+            if (choice == CHOICE_LEAVE) {
+                return;
             }
+            if (choice == CHOICE_TAKE) {
+                if (!ensureRequiredTool(playerViewModel, animal)) {
+                    return;
+                }
+                mapViewModel.collectAnimalProduct(animal);
+                return;
+            }
+            System.out.println("Invalid range number input!");
+            consoleUtils.pause();
         }
+    }
+
+    private void renderPrompt(Animal animal) {
+        System.out.printf("Want to take %s %s?\n",
+                StringUtils.possessive(animal.getName()),
+                animal.getAnimalProduct().getName());
+        System.out.println("1. Take");
+        System.out.println("2. Don't take");
+        System.out.print(">> ");
+    }
+
+    private int readChoice() {
+        try {
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            return choice;
+        } catch (Exception exception) {
+            scanner.nextLine();
+            return -1;
+        }
+    }
+
+    private boolean ensureRequiredTool(PlayerViewModel playerViewModel, Animal animal) {
+        String requiredTool = animal.requiredToolName();
+        if (requiredTool == null || playerViewModel.hasItem(requiredTool)) {
+            return true;
+        }
+
+        System.out.printf("You don't have %s to get %s %s\n",
+                articleFor(requiredTool),
+                StringUtils.possessive(animal.getName()),
+                animal.getAnimalProduct().getName());
+        consoleUtils.pause();
+        return false;
+    }
+
+    private String articleFor(String toolName) {
+        if (toolName.equalsIgnoreCase("Shears")) {
+            return toolName.toLowerCase();
+        }
+        return "a " + toolName.toLowerCase();
     }
 }

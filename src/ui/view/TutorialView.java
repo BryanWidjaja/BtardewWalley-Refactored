@@ -1,43 +1,26 @@
 package ui.view;
 
+import java.util.List;
 import java.util.Scanner;
+
+import services.loader.TutorialPageLoader;
 import util.ConsoleUtils;
 
 public class TutorialView {
+    private static final String TUTORIAL_PATH = "system_data/tutorial.txt";
 
     public static void showTutorial(Scanner scanner, ConsoleUtils consoleUtils) {
-        String[][] pages = getTutorialPages();
+        List<String[]> pages = TutorialPageLoader.loadPages(TUTORIAL_PATH);
+        if (pages.isEmpty()) {
+            return;
+        }
+
         int currentPage = 0;
-
         while (true) {
-            consoleUtils.spaceConsole();
-            System.out.println("============================================================");
-            System.out.println("               BTARDEW WALLEY - TUTORIAL");
-            System.out.println("============================================================");
-            System.out.println();
-
-            String[] page = pages[currentPage];
-            System.out.println("  >> " + page[0] + " <<");
-            System.out.println("------------------------------------------------------------");
-
-            for (int i = 1; i < page.length; i++) {
-                System.out.println("  " + page[i]);
-            }
-
-            System.out.println();
-            System.out.println("------------------------------------------------------------");
-            System.out.printf("  Page %d / %d\n", currentPage + 1, pages.length);
-            System.out.println("------------------------------------------------------------");
-
-            StringBuilder navigation = new StringBuilder("  ");
-            if (currentPage > 0) navigation.append("[P] Previous  ");
-            if (currentPage < pages.length - 1) navigation.append("[N] Next  ");
-            navigation.append("[Q] Back to Menu");
-            System.out.println(navigation.toString());
-            System.out.print("  >> ");
+            renderPage(consoleUtils, pages, currentPage);
 
             String input = scanner.nextLine().trim().toLowerCase();
-            if (input.equals("n") && currentPage < pages.length - 1) {
+            if (input.equals("n") && currentPage < pages.size() - 1) {
                 currentPage++;
             } else if (input.equals("p") && currentPage > 0) {
                 currentPage--;
@@ -47,147 +30,35 @@ public class TutorialView {
         }
     }
 
-    private static String[][] getTutorialPages() {
-        return new String[][] {
-            {
-                "GETTING STARTED", "",
-                "Welcome to Btardew Walley!",
-                "A terminal-based farming and animal husbandry simulator.", "",
-                "Before entering the game world, you must create an",
-                "account or log in with an existing one.", "",
-                "  Account Requirements:",
-                "  - Username: at least 8 characters",
-                "  - Password: at least 8 characters,",
-                "              must contain 1 letter and 1 number", "",
-                "Once logged in, you start with $1,000 and begin",
-                "on the Home Map. Your progress is saved when you",
-                "exit with 'q', so you can pick up where you left off!"
-            },
-            {
-                "THE WORLD", "",
-                "The game world is split into three interconnected maps:", "",
-                "  1. HOME MAP",
-                "     Your starting area. Here you can:",
-                "     - Sleep in your bed to advance time",
-                "     - Visit the Animal Shop to buy/sell animals",
-                "     - Visit the Tool Shop for essential equipment", "",
-                "  2. PLANT FARM MAP (North of Home)",
-                "     The farming area. Here you can:",
-                "     - Buy seeds from the Farm Shop",
-                "     - Plant crops on dirt tiles (.)",
-                "     - Harvest mature crops",
-                "     - Sell farm products", "",
-                "  3. ANIMAL FARM MAP (East of Home)",
-                "     The grazing pasture for your livestock.",
-                "     Animals will appear here after purchase."
-            },
-            {
-                "CONTROLS", "",
-                "Move your character (P) onto points of interest:", "",
-                "  Movement:",
-                "    W  -  Move Up",
-                "    S  -  Move Down",
-                "    A  -  Move Left",
-                "    D  -  Move Right", "",
-                "  Actions:",
-                "    E  -  Open Inventory Menu",
-                "    Q  -  Save & Exit Game", "",
-                "  Other:",
-                "    ENTER  -  Continue dialogues", "",
-                "  The Inventory Menu lets you view:",
-                "    1. Animal Products  2. Farm Products",
-                "    3. Animals          4. Tools",
-                "    5. Plant Seeds"
-            },
-            {
-                "PLANT FARMING", "",
-                "Head North to the Plant Farm map to grow crops!", "",
-                "  BUYING SEEDS:",
-                "  Step on the Farm Shop tile to buy seeds.",
-                "    - Wheat Seed    : $50  (grows in 3 days)",
-                "    - Beetroot Seed : $100 (grows in 5 days)", "",
-                "  PLANTING:",
-                "  Step onto an empty dirt tile (.) to plant.",
-                "  * You MUST have a Hoe in your inventory!",
-                "  * Enter 0 to exit the planting menu.", "",
-                "  HARVESTING:",
-                "  After enough days of sleeping, crops mature.",
-                "  A lowercase symbol (w, b) becomes UPPERCASE (W, B).",
-                "  Step on a mature crop to auto-harvest it!", "",
-                "  Sell harvested products at the Farm Shop."
-            },
-            {
-                "ANIMAL HUSBANDRY", "",
-                "Buy animals from the Animal Shop on the Home Map.",
-                "Each animal needs a unique name (max 15 characters).", "",
-                "  ANIMALS & PRODUCTS:",
-                "  +----------+--------+--------+---------+----------+",
-                "  | Animal   | Symbol | Price  | Product | Harvest  |",
-                "  +----------+--------+--------+---------+----------+",
-                "  | Chicken  |   c    |  $200  |  Egg    | 1 day    |",
-                "  | Cow      |   C    |  $300  |  Milk   | 2 days   |",
-                "  | Sheep    |   S    |  $500  |  Wool   | 5 days   |",
-                "  +----------+--------+--------+---------+----------+", "",
-                "  TOOL REQUIREMENTS:",
-                "  - Chickens: No tool needed",
-                "  - Cows:     Requires a Bucket",
-                "  - Sheep:    Requires Shears", "",
-                "  MAP COLORS:  P=Green  c=Yellow  C=Brown  S=White"
-            },
-            {
-                "BUYING TOOLS", "",
-                "Purchase essential equipment from the Tool Shop",
-                "on the Home Map.", "",
-                "  AVAILABLE TOOLS:",
-                "  +----------+----------+---------------------------+",
-                "  | Tool     | Price    | Purpose                   |",
-                "  +----------+----------+---------------------------+",
-                "  | Bucket   | $1,000   | Collect Milk from Cows    |",
-                "  | Shears   | $1,500   | Collect Wool from Sheep   |",
-                "  | Hoe      | $3,000   | Required to plant seeds   |",
-                "  +----------+----------+---------------------------+", "",
-                "  TIP: Tools are one-time purchases. Once bought,",
-                "  they remain in your inventory permanently.", "",
-                "  RECOMMENDED: Buy a Hoe first so you can start",
-                "  farming, then save up for a Bucket and Shears."
-            },
-            {
-                "SLEEPING & TIME PROGRESSION", "",
-                "Time in Btardew Walley progresses when you sleep.", "",
-                "  HOW TO SLEEP:",
-                "  Walk to your bed on the Home Map and confirm.", "",
-                "  WHAT HAPPENS WHEN YOU SLEEP:",
-                "  - Day counter increases by 1",
-                "  - Animal harvest timers count down",
-                "  - Crop growth timers count down",
-                "  - Farm product freshness decreases by 1", "",
-                "  WARNING: Sleeping too much without selling your",
-                "  farm products will cause them to rot! (Freshness",
-                "  reaching 0 removes the item from your inventory.)"
-            },
-            {
-                "ADVANCED ECONOMICS", "",
-                "  FRESHNESS (Farm Products):",
-                "  Starts at 5 when harvested, drops by 1 per day.",
-                "  +-------------------+-------------------+",
-                "  | Freshness         | Sell Multiplier   |",
-                "  +-------------------+-------------------+",
-                "  | 4-5 (High)        | 1.0x (Full)       |",
-                "  | 3   (Medium)      | 0.5x (Half)       |",
-                "  | 1-2 (Low)         | 0.25x (Quarter)   |",
-                "  | 0   (Rotten)      | ITEM DESTROYED    |",
-                "  +-------------------+-------------------+", "",
-                "  GRADE QUALITY (Animal Products):",
-                "  Random grade assigned when harvesting animals.",
-                "  Higher day count = better chance of rare grades!",
-                "  +----------+-------------------+",
-                "  | Grade    | Sell Multiplier   |",
-                "  +----------+-------------------+",
-                "  | Grade 1  | 1x base price     |",
-                "  | Grade 2  | 2x base price     |",
-                "  | Grade 3  | 5x base price     |",
-                "  +----------+-------------------+"
-            }
-        };
+    private static void renderPage(ConsoleUtils consoleUtils, List<String[]> pages, int currentPage) {
+        consoleUtils.spaceConsole();
+        System.out.println("============================================================");
+        System.out.println("               BTARDEW WALLEY - TUTORIAL");
+        System.out.println("============================================================");
+        System.out.println();
+
+        String[] page = pages.get(currentPage);
+        System.out.println("  >> " + page[0] + " <<");
+        System.out.println("------------------------------------------------------------");
+
+        for (int i = 1; i < page.length; i++) {
+            System.out.println("  " + page[i]);
+        }
+
+        System.out.println();
+        System.out.println("------------------------------------------------------------");
+        System.out.printf("  Page %d / %d\n", currentPage + 1, pages.size());
+        System.out.println("------------------------------------------------------------");
+
+        StringBuilder navigation = new StringBuilder("  ");
+        if (currentPage > 0) {
+            navigation.append("[P] Previous  ");
+        }
+        if (currentPage < pages.size() - 1) {
+            navigation.append("[N] Next  ");
+        }
+        navigation.append("[Q] Back to Menu");
+        System.out.println(navigation.toString());
+        System.out.print("  >> ");
     }
 }

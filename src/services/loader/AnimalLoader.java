@@ -6,14 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import model.animal.Animal;
-import model.item.AnimalProduct;
+import model.animal.AnimalProductKind;
 import util.FileLineReader;
 
 public class AnimalLoader {
 	public static void loadAvailableAnimals () {
 		try {
 			DatabaseRegistry.getList(Animal.class).clear();
-			DatabaseRegistry.<String, Double>getMap(AnimalProduct.class).clear();
+			DatabaseRegistry.getList(AnimalProductKind.class).clear();
 
 			List<String[]> animalRows = FileLineReader.readRows("system_data/animals.txt");
 			List<String[]> productRows = FileLineReader.readRows("system_data/animal_products.txt");
@@ -29,15 +29,16 @@ public class AnimalLoader {
 				String productName = productParts[0].trim();
 				double productPrice = Double.parseDouble(productParts[1].trim());
 
-				Animal animal = AnimalFactoryProvider.getFactory(type)
-						.createAnimal("", productName, harvestRate, harvestRate, 0, 0, price, false);
-				DatabaseRegistry.getList(Animal.class).add(animal);
+				AnimalProductKind productKind = new AnimalProductKind(productName, productPrice);
+				DatabaseRegistry.getList(AnimalProductKind.class).add(productKind);
 
-				DatabaseRegistry.<String, Double>getMap(AnimalProduct.class).put(productName, productPrice);
+				Animal animal = AnimalFactoryProvider.getFactory(type)
+						.createAnimal("", productKind, harvestRate, harvestRate, 0, 0, price, false);
+				DatabaseRegistry.getList(Animal.class).add(animal);
 			}
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException exception) {
 			System.out.println("animal data file not found");
-		} catch (IOException e) {
+		} catch (IOException exception) {
 			System.out.println("Error loading animals!");
 		}
 	}

@@ -24,7 +24,9 @@ public class HarvestStats {
     }
 
     public void tick() {
-        if (harvestable) return;
+        if (harvestable) {
+            return;
+        }
         currentRate--;
         if (currentRate == 0) {
             harvestable = true;

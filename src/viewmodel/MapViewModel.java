@@ -3,7 +3,7 @@ package viewmodel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.BiConsumer;
+import java.util.Set;
 
 import database.DatabaseRegistry;
 import factory.animal.AnimalFactoryProvider;
@@ -23,17 +23,22 @@ import strategy.AnimalFarmMapStrategy;
 import strategy.FarmMapStrategy;
 import strategy.MapEventStrategy;
 import strategy.TownMapStrategy;
-import ui.view.GameMapView;
+import ui.view.MapBoard;
 import util.GradeUtils;
 
 public class MapViewModel {
-    private static Map<Character, BiConsumer<Coordinate, Coordinate>> moveActions = new HashMap<>();
+    public static final String DEV_MODE_INPUT = "devmode";
+    public static final Coordinate DEV_TELEPORT_DESTINATION = new Coordinate(10, 21);
+    private static final String WALL_TILES = "#+-_|/\\\"'`:,";
+    private static final Set<Character> RESERVED_KEYS =
+            Set.of('r', 'g', 'u', 't', 'p', 'k', '1', '2', '3');
 
+    private static final Map<Character, int[]> MOVE_DELTAS = new HashMap<>();
     static {
-        moveActions.put('w', (position, delta) -> delta.setX(position.getX() - 1));
-        moveActions.put('a', (position, delta) -> delta.setY(position.getY() - 1));
-        moveActions.put('s', (position, delta) -> delta.setX(position.getX() + 1));
-        moveActions.put('d', (position, delta) -> delta.setY(position.getY() + 1));
+        MOVE_DELTAS.put('w', new int[]{-1, 0});
+        MOVE_DELTAS.put('a', new int[]{0, -1});
+        MOVE_DELTAS.put('s', new int[]{1, 0});
+        MOVE_DELTAS.put('d', new int[]{0, 1});
     }
 
     private PlayerViewModel playerViewModel;
@@ -48,7 +53,7 @@ public class MapViewModel {
         this.playerViewModel = playerViewModel;
         this.random = random;
         this.gradeUtils = gradeUtils;
-        
+
         this.eventStrategies = new HashMap<>();
         this.eventStrategies.put(0, new FarmMapStrategy(this));
         this.eventStrategies.put(1, new TownMapStrategy());
@@ -88,61 +93,68 @@ public class MapViewModel {
     }
 
     public GameEvent processInput(String input) {
-        if (input == null || input.isEmpty()) return GameEvent.NONE;
-
-        if (input.equals("devmode")) {
+        if (input == null || input.isEmpty()) {
+            return GameEvent.NONE;
+        }
+        if (input.equals(DEV_MODE_INPUT)) {
             return GameEvent.NONE;
         }
 
         char key = input.charAt(0);
+        GameEvent specialKeyEvent = dispatchSpecialKey(key);
+        if (specialKeyEvent != null) {
+            return specialKeyEvent;
+        }
 
-        if (key == 'e') return GameEvent.INVENTORY;
-        if (key == 'q') return GameEvent.EXIT;
+        return tryMove(key);
+    }
 
-            if ("rgutpk123".indexOf(key) >= 0) {
-                return GameEvent.NONE;
-            }
+    private GameEvent dispatchSpecialKey(char key) {
+        if (key == 'e') {
+            return GameEvent.INVENTORY;
+        }
+        if (key == 'q') {
+            return GameEvent.EXIT;
+        }
+        if (RESERVED_KEYS.contains(key)) {
+            return GameEvent.NONE;
+        }
+        return null;
+    }
+
+    private GameEvent tryMove(char key) {
+        int[] delta = MOVE_DELTAS.get(key);
+        if (delta == null) {
+            return GameEvent.NONE;
+        }
+
+        Coordinate playerPos = playerViewModel.getPosition();
+        int newX = playerPos.getX() + delta[0];
+        int newY = playerPos.getY() + delta[1];
 
         char[][] currMap = getCurrentMap();
-        Coordinate newPos = new Coordinate(playerViewModel.getPosition().getX(), playerViewModel.getPosition().getY());
-        BiConsumer<Coordinate, Coordinate> action = moveActions.get(key);
-        if (action == null) return GameEvent.NONE;
-        
-        action.accept(playerViewModel.getPosition(), newPos);
-        int newX = newPos.getX();
-        int newY = newPos.getY();
-
-        int rows = currMap.length;
-        int cols = currMap[0].length;
-
-        if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) {
+        if (!isInBounds(currMap, newX, newY) || isWall(currMap, newX, newY)) {
             return GameEvent.NONE;
         }
 
-        if (checkWall(currMap, newX, newY)) {
-            return GameEvent.NONE;
-        }
-
-        currMap[playerViewModel.getPosition().getX()]
-               [playerViewModel.getPosition().getY()] = playerViewModel.getCurrTile();
-
-        playerViewModel.setCurrTile(currMap[newX][newY]);
-        playerViewModel.getPosition().moveTo(newX, newY);
-        currMap[newX][newY] = 'P';
-
+        commitMove(currMap, newX, newY);
         return triggerEvent(newX, newY);
     }
 
-    private boolean checkWall(char[][] map, int x, int y) {
-        String walls = "#+-_|/\\\"'`:,";
-        char tile = map[x][y];
+    private boolean isInBounds(char[][] map, int x, int y) {
+        return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
+    }
 
-        for (int i = 0; i < walls.length(); i++) {
-            if (tile == walls.charAt(i)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isWall(char[][] map, int x, int y) {
+        return WALL_TILES.indexOf(map[x][y]) >= 0;
+    }
+
+    private void commitMove(char[][] currMap, int newX, int newY) {
+        Coordinate playerPos = playerViewModel.getPosition();
+        currMap[playerPos.getX()][playerPos.getY()] = playerViewModel.getCurrTile();
+        playerViewModel.setCurrTile(currMap[newX][newY]);
+        playerPos.moveTo(newX, newY);
+        currMap[newX][newY] = MapBoard.PLAYER_TILE;
     }
 
     private GameEvent triggerEvent(int x, int y) {
@@ -172,8 +184,8 @@ public class MapViewModel {
         while (iterator.hasNext()) {
             Plant plant = iterator.getNext();
             if (plant.tickGrowth()) {
-                GameMapView.PLANT_FARM_MAP[plant.getPosition().getX()][plant.getPosition().getY()]
-                    = Character.toUpperCase(plant.getSymbol());
+                MapBoard.placePlant(plant.getPosition().getX(), plant.getPosition().getY(),
+                        plant.getSymbol(), true);
             }
         }
     }
@@ -215,62 +227,62 @@ public class MapViewModel {
                         FarmProductFreshness.LEVEL_5.getLevel());
                 playerViewModel.addItem(newProduct, 1);
                 iterator.remove();
-                GameMapView.PLANT_FARM_MAP[plantX][plantY] = '.';
-                playerViewModel.setCurrTile('.');
+                MapBoard.clearPlantAt(plantX, plantY);
+                playerViewModel.setCurrTile(MapBoard.EMPTY_PLANT_TILE);
                 break;
             }
         }
     }
 
     public void insertAnimal(String type, String name) {
-        int rows = GameMapView.ANIMAL_FARM_MAP.length;
-        int cols = GameMapView.ANIMAL_FARM_MAP[0].length;
+        Animal template = findAnimalTemplate(type);
+        if (template == null) {
+            return;
+        }
 
-        Animal template = null;
-        for (Animal a : DatabaseRegistry.getList(Animal.class)) {
-            if (a.getType().equals(type)) {
-                template = a;
-                break;
+        Coordinate position = pickFreePosition();
+        if (position == null) {
+            return;
+        }
+
+        Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
+                name, template.getAnimalProduct(),
+                template.getDefaultHarvestRate(), template.getDefaultHarvestRate(),
+                position.getX(), position.getY(), template.getPrice(), true);
+        playerViewModel.getAnimals().add(animal);
+        MapBoard.placeAnimal(position.getX(), position.getY(), animal.getSymbol());
+    }
+
+    private Animal findAnimalTemplate(String type) {
+        for (Animal animal : DatabaseRegistry.getList(Animal.class)) {
+            if (animal.getType().equals(type)) {
+                return animal;
             }
         }
-        if (template == null) return;
+        return null;
+    }
 
+    private Coordinate pickFreePosition() {
+        int rows = MapBoard.animalRows();
+        int cols = MapBoard.animalCols();
         while (true) {
-            int animalX = random.nextInt(rows);
-            int animalY = random.nextInt(cols);
-
-            if (GameMapView.ANIMAL_FARM_MAP[animalX][animalY] != ' ') {
+            int x = random.nextInt(rows);
+            int y = random.nextInt(cols);
+            if (!MapBoard.isAnimalTileEmpty(x, y)) {
                 continue;
             }
-
-            boolean occupied = false;
-            for (Animal a : playerViewModel.getAnimals()) {
-                if (a.getPosition().getX() == animalX && a.getPosition().getY() == animalY) {
-                    occupied = true;
-                    break;
-                }
+            if (findAnimalAt(x, y) != null) {
+                continue;
             }
-
-            if (!occupied) {
-                Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
-                        name, template.getAnimalProduct(),
-                        template.getDefaultHarvestRate(), template.getDefaultHarvestRate(),
-                        animalX, animalY, template.getPrice(), true);
-                playerViewModel.getAnimals().add(animal);
-                GameMapView.ANIMAL_FARM_MAP[animalX][animalY] = animal.getSymbol();
-                break;
-            }
+            return new Coordinate(x, y);
         }
     }
 
     public AnimalProduct collectAnimalProduct(Animal animal) {
-        AnimalProductGrade grade = gradeUtils.getGrade();
-
-        String productName = animal.getAnimalProduct();
-        double basePrice = DatabaseRegistry.<String, Double>getMap(AnimalProduct.class).getOrDefault(productName, 0.0);
-
+        AnimalProductGrade grade = gradeUtils.getGrade(playerViewModel.getDay());
+        double basePrice = animal.getAnimalProduct().getBasePrice();
         AnimalProduct product = new AnimalProduct(
-                productName,
+                animal.getAnimalProduct().getName(),
                 (int) (basePrice * grade.getMultiplier()),
                 grade);
 
@@ -292,7 +304,7 @@ public class MapViewModel {
         for (char[][] map : DatabaseRegistry.getList(char[][].class)) {
             for (int i = 0; i < map.length; i++) {
                 for (int j = 0; j < map[i].length; j++) {
-                    if (map[i][j] == 'P') {
+                    if (map[i][j] == MapBoard.PLAYER_TILE) {
                         map[i][j] = ' ';
                     }
                 }
@@ -302,7 +314,9 @@ public class MapViewModel {
 
     public void devModeTeleport(int mapIndex) {
         playerViewModel.setCurrMapIndex(mapIndex);
-        playerViewModel.getPosition().moveTo(10, 21);
+        playerViewModel.getPosition().moveTo(
+                DEV_TELEPORT_DESTINATION.getX(),
+                DEV_TELEPORT_DESTINATION.getY());
         devModeClearAllPlayers();
     }
 }

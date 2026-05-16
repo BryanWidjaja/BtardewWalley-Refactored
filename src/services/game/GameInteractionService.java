@@ -10,14 +10,16 @@ import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 
 public class GameInteractionService {
-    private Scanner scanner;
-    private User currentUser;
-    private PlayerViewModel playerViewModel;
-    private MapViewModel mapViewModel;
-    private Map<GameEvent, Command> eventCommands;
-    private Map<Character, Command> devModeCommands;
+    private static final int DEV_MODE_MONEY_GRANT = 1000000;
 
-    public GameInteractionService(Scanner scanner, User currentUser, PlayerViewModel playerViewModel, MapViewModel mapViewModel, 
+    private final Scanner scanner;
+    private final User currentUser;
+    private final PlayerViewModel playerViewModel;
+    private final MapViewModel mapViewModel;
+    private final Map<GameEvent, Command> eventCommands;
+    private final Map<Character, Command> devModeCommands;
+
+    public GameInteractionService(Scanner scanner, User currentUser, PlayerViewModel playerViewModel, MapViewModel mapViewModel,
                              Map<GameEvent, Command> eventCommands, Map<Character, Command> devModeCommands) {
         this.scanner = scanner;
         this.currentUser = currentUser;
@@ -29,24 +31,42 @@ public class GameInteractionService {
 
     public void update() {
         String inputStr = scanner.nextLine().toLowerCase().trim();
-        if (inputStr.isEmpty()) return;
+        if (inputStr.isEmpty()) {
+            return;
+        }
 
-        if (inputStr.equals("devmode")) {
-            if (currentUser != null) currentUser.setDevMode(true);
-            playerViewModel.setMoney(1000000);
+        if (inputStr.equals(MapViewModel.DEV_MODE_INPUT)) {
+            enableDevMode();
             return;
         }
 
         char key = inputStr.charAt(0);
-
-        if (currentUser != null && currentUser.isDevMode()) {
-            Command devModeCommand = devModeCommands.get(key);
-            if (devModeCommand != null && devModeCommand.canExecute()) {
-                devModeCommand.execute();
-                return;
-            }
+        if (tryDevModeCommand(key)) {
+            return;
         }
+        dispatchEvent(inputStr);
+    }
 
+    private void enableDevMode() {
+        if (currentUser != null) {
+            currentUser.setDevMode(true);
+        }
+        playerViewModel.setMoney(DEV_MODE_MONEY_GRANT);
+    }
+
+    private boolean tryDevModeCommand(char key) {
+        if (currentUser == null || !currentUser.isDevMode()) {
+            return false;
+        }
+        Command devCommand = devModeCommands.get(key);
+        if (devCommand == null || !devCommand.canExecute()) {
+            return false;
+        }
+        devCommand.execute();
+        return true;
+    }
+
+    private void dispatchEvent(String inputStr) {
         GameEvent event = mapViewModel.processInput(inputStr);
         Command command = eventCommands.get(event);
         if (command != null && command.canExecute()) {

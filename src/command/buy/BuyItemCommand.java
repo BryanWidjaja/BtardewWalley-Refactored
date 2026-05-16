@@ -38,8 +38,12 @@ public abstract class BuyItemCommand<T> implements Command {
             displayTable(items);
 
             int choice = getUserSelection(items.size());
-            if (choice == 0) return;
-            if (choice == -2) continue;
+            if (choice == 0) {
+                return;
+            }
+            if (choice == -2) {
+                continue;
+            }
 
             if (choice != -1) {
                 T selectedItem = getItem(choice);
@@ -47,7 +51,7 @@ public abstract class BuyItemCommand<T> implements Command {
             } else {
                 System.out.println("Invalid choice!");
             }
-            
+
             consoleUtils.pause();
         }
     }
@@ -73,8 +77,12 @@ public abstract class BuyItemCommand<T> implements Command {
         }
         int choice = sc.nextInt();
         sc.nextLine();
-        if (choice == 0) return 0;
-        if (choice >= 1 && choice <= maxChoice) return choice;
+        if (choice == 0) {
+            return 0;
+        }
+        if (choice >= 1 && choice <= maxChoice) {
+            return choice;
+        }
         return -1;
     }
 }

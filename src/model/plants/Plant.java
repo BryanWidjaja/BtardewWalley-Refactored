@@ -1,12 +1,14 @@
 package model.plants;
 
+import java.util.Locale;
+
 import model.Coordinate;
 
 public abstract class Plant {
 	private char symbol;
 	private String name;
 	private Coordinate position;
-	private int growthTime;
+	private GrowthDuration growth;
 	private double price;
 	private boolean harvestable;
 
@@ -14,7 +16,7 @@ public abstract class Plant {
 		this.symbol = symbol;
 		this.name = name;
 		this.position = new Coordinate(plantX, plantY);
-		this.growthTime = growthTime;
+		this.growth = new GrowthDuration(growthTime);
 		this.price = price;
 		this.harvestable = harvestable;
 	}
@@ -32,7 +34,7 @@ public abstract class Plant {
 	}
 
 	public int getGrowthTime() {
-		return growthTime;
+		return growth.getDaysRemaining();
 	}
 
 	public double getPrice() {
@@ -44,15 +46,19 @@ public abstract class Plant {
 	}
 
 	public boolean tickGrowth() {
-		if (harvestable) return false;
-
-		growthTime--;
-
-		if (growthTime == 0) {
+		if (harvestable) {
+			return false;
+		}
+		if (growth.tick()) {
 			harvestable = true;
 			return true;
 		}
-
 		return false;
+	}
+
+	public String toSaveLine() {
+		return String.format(Locale.ROOT, "PLANT#%c#%s#%d#%d#%d#%.2f#%b",
+				symbol, name, position.getX(), position.getY(),
+				getGrowthTime(), price, harvestable);
 	}
 }

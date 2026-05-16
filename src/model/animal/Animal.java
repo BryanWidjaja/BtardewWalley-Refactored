@@ -1,17 +1,19 @@
 package model.animal;
 
+import java.util.Locale;
+
 import model.Coordinate;
 
 public abstract class Animal {
 	protected char symbol;
 	protected String name;
 	protected String type;
-	protected String animalProduct;
+	protected AnimalProductKind animalProduct;
 	protected HarvestStats harvestStats;
 	protected Coordinate position;
 	protected double price;
 
-	public Animal(char symbol, String name, String type, String animalProduct,
+	public Animal(char symbol, String name, String type, AnimalProductKind animalProduct,
 			HarvestStats harvestStats, Coordinate position, double price) {
 		this.symbol = symbol;
 		this.name = name;
@@ -34,7 +36,7 @@ public abstract class Animal {
 		return type;
 	}
 
-	public String getAnimalProduct() {
+	public AnimalProductKind getAnimalProduct() {
 		return animalProduct;
 	}
 
@@ -64,5 +66,14 @@ public abstract class Animal {
 
 	public void collectProduct() {
 		harvestStats.collect();
+	}
+
+	public abstract String requiredToolName();
+
+	public String toSaveLine() {
+		return String.format(Locale.ROOT, "ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
+				symbol, name, type, animalProduct.getName(),
+				getHarvestRate(), position.getX(), position.getY(),
+				price, isHarvestable());
 	}
 }

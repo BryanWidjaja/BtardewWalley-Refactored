@@ -107,6 +107,10 @@ public class Player {
         return inventory.findItemsByType(type);
     }
 
+    public <T extends Item> int findItemIndex(Class<T> type, int displayChoice) {
+        return inventory.findItemIndex(type, displayChoice);
+    }
+
     public void removeItemQuantity(int index, int quantity) {
         inventory.removeItemQuantity(index, quantity);
     }
@@ -119,12 +123,8 @@ public class Player {
         inventory.removeSeedFromInventory(seed);
     }
 
-    public int findAnimalProductIndex(int displayChoice) {
-        return inventory.findAnimalProductIndex(displayChoice);
-    }
-
-    public int findFarmProductIndex(int displayChoice) {
-        return inventory.findFarmProductIndex(displayChoice);
+    public Animal findAnimalAt(int x, int y) {
+        return inventory.findAnimalAt(x, y);
     }
 
     public boolean isAnimalNameTaken(String name) {

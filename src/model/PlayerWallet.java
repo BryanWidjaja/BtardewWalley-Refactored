@@ -20,7 +20,9 @@ public class PlayerWallet {
     }
 
     public boolean spendMoney(double amount) {
-        if (money < amount) return false;
+        if (money < amount) {
+            return false;
+        }
         money -= amount;
         return true;
     }

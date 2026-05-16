@@ -7,37 +7,40 @@ import services.game.GameRenderingService;
 public class GameFacade {
     private GameRenderingService renderer;
     private GameInteractionService interactionService;
-    private boolean isRunning = true;
+    private boolean running;
 
-    public void initialize() {
+    public void start() {
+        initialize();
+        running = true;
+        loop();
+    }
+
+    private void initialize() {
         GameInitializationService initializer = new GameInitializationService();
         initializer.initialize();
 
-        this.renderer = new GameRenderingService(
-            initializer.getMapViewModel(), 
-            initializer.getPlayerViewModel(), 
-            initializer.getConsoleUtils()
-        );
+        renderer = new GameRenderingService(
+                initializer.getMapViewModel(),
+                initializer.getPlayerViewModel(),
+                initializer.getIO().getConsoleUtils());
 
-        this.interactionService = new GameInteractionService(
-            initializer.getScanner(),
-            initializer.getCurrentUser(),
-            initializer.getPlayerViewModel(),
-            initializer.getMapViewModel(),
-            initializer.getEventCommands(),
-            initializer.getDevModeCommands()
-        );
+        interactionService = new GameInteractionService(
+                initializer.getIO().getScanner(),
+                initializer.getCurrentUser(),
+                initializer.getPlayerViewModel(),
+                initializer.getMapViewModel(),
+                initializer.getEventCommands(),
+                initializer.getDevModeCommands());
     }
 
-    public void render() {
-        if (renderer != null) renderer.render();
+    private void loop() {
+        while (running) {
+            renderer.render();
+            interactionService.update();
+        }
     }
 
-    public void update() {
-        if (interactionService != null) interactionService.update();
-    }
-
-    public boolean isRunning() {
-        return isRunning;
+    public void stop() {
+        running = false;
     }
 }

@@ -5,8 +5,6 @@ import java.util.List;
 import iterator.Iterator;
 import iterator.ListIterator;
 import model.animal.Animal;
-import model.item.AnimalProduct;
-import model.item.FarmProduct;
 import model.item.Item;
 import model.item.PlantSeed;
 import model.plants.Plant;
@@ -96,14 +94,12 @@ public class PlayerInventory {
         }
     }
 
-    public int findAnimalProductIndex(int displayChoice) {
+    public <T extends Item> int findItemIndex(Class<T> type, int displayChoice) {
         int counter = 1;
-        Iterator<PlayerItem> iterator = new ListIterator<>(items);
-        while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
-            if (item.getItem() instanceof AnimalProduct) {
+        for (int i = 0; i < items.size(); i++) {
+            if (type.isInstance(items.get(i).getItem())) {
                 if (counter == displayChoice) {
-                    return items.indexOf(item);
+                    return i;
                 }
                 counter++;
             }
@@ -111,25 +107,17 @@ public class PlayerInventory {
         return -1;
     }
 
-    public int findFarmProductIndex(int displayChoice) {
-        int counter = 1;
-        Iterator<PlayerItem> iterator = new ListIterator<>(items);
-        while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
-            if (item.getItem() instanceof FarmProduct) {
-                if (counter == displayChoice) {
-                    return items.indexOf(item);
-                }
-                counter++;
+    public Animal findAnimalAt(int x, int y) {
+        for (Animal animal : animals) {
+            if (animal.getPosition().getX() == x && animal.getPosition().getY() == y) {
+                return animal;
             }
         }
-        return -1;
+        return null;
     }
 
     public boolean isAnimalNameTaken(String name) {
-        Iterator<Animal> iterator = new ListIterator<>(animals);
-        while (iterator.hasNext()) {
-            Animal animal = iterator.getNext();
+        for (Animal animal : animals) {
             if (animal.getName().equalsIgnoreCase(name.trim())) {
                 return true;
             }

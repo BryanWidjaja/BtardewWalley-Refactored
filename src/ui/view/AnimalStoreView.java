@@ -32,7 +32,7 @@ public class AnimalStoreView {
             menu.render(() -> System.out.printf("Money: %.2f$\n", playerViewModel.getMoney()));
 
             String input = scanner.nextLine().trim();
-            if (input.equals("4")) {
+            if (input.equals(String.valueOf(menu.exitOption()))) {
                 return;
             }
 

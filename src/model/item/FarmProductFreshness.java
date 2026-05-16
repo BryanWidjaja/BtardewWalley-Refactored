@@ -29,13 +29,17 @@ public enum FarmProductFreshness {
     }
 
     public FarmProductFreshness getNextState() {
-        if (this == EXPIRED) return EXPIRED;
+        if (this == EXPIRED) {
+            return EXPIRED;
+        }
         return fromLevel(level - 1);
     }
 
     public static FarmProductFreshness fromLevel(int level) {
-        for (FarmProductFreshness f : values()) {
-            if (f.level == level) return f;
+        for (FarmProductFreshness freshness : values()) {
+            if (freshness.level == level) {
+                return freshness;
+            }
         }
         return EXPIRED;
     }

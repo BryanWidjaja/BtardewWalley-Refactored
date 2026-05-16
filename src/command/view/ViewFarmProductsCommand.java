@@ -13,10 +13,10 @@ public class ViewFarmProductsCommand extends ViewInventoryItemsCommand<FarmProdu
 
     @Override
     protected void displayItem(int index, PlayerItem item) {
-        FarmProduct fp = getActualItem(item);
+        FarmProduct farmProduct = getActualItem(item);
         System.out.printf("%d. %s(%d) - %d\n", index,
-                fp.getName(),
-                fp.getFreshness().getLevel(),
+                farmProduct.getName(),
+                farmProduct.getFreshness().getLevel(),
                 item.getQuantity());
     }
 

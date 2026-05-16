@@ -3,9 +3,9 @@ package viewmodel;
 import model.User;
 import services.PlayerPersistenceService;
 import services.loader.AnimalLoader;
-import services.loader.MapLoader;
 import services.loader.SeedLoader;
 import services.loader.ToolLoader;
+import ui.view.MapBoard;
 
 public class MainViewModel {
     private PlayerViewModel playerViewModel;
@@ -32,7 +32,7 @@ public class MainViewModel {
     }
 
     public void init(User user) {
-        MapLoader.loadMaps();
+        MapBoard.registerMaps();
         ToolLoader.loadAvailableTools();
         AnimalLoader.loadAvailableAnimals();
         SeedLoader.loadAvailableSeeds();

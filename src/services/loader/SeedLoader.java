@@ -17,9 +17,9 @@ public class SeedLoader {
 						new PlantSeed(name, price, Character.toLowerCase(name.charAt(0)), growthTime));
 			};
 			seedLoader.loadFile("system_data/plants.txt");
-	    } catch (FileNotFoundException e) {
+	    } catch (FileNotFoundException exception) {
 	        System.out.println("plants.txt not found");
-	    } catch (IOException e) {
+	    } catch (IOException exception) {
 	        System.out.println("Error loading seeds!");
 	    }
 	}

@@ -30,7 +30,7 @@ public class FarmStoreView {
             menu.render(() -> System.out.printf("Money: %.2f$\n", playerViewModel.getMoney()));
 
             String input = scanner.nextLine().trim();
-            if (input.equals("3")) {
+            if (input.equals(String.valueOf(menu.exitOption()))) {
                 return;
             }
 

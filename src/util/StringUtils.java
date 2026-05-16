@@ -1,23 +1,32 @@
 package util;
 
-public class StringUtils {
-	
-	public static final String RESET = "\u001B[0m";
-	public static final String GREEN = "\u001B[32m";
-	public static final String YELLOW = "\u001B[33m";
-	public static final String WHITE_BRIGHT = "\u001B[97m";
-	public static final String BROWN = "\u001B[38;5;94m";
+import java.util.HashMap;
+import java.util.Map;
 
-	public static String colorize(char c) {
-		switch (c) {
-			case 'P': return GREEN + c + RESET;
-			case 'c': return YELLOW + c + RESET;
-			case 'C': return BROWN + c + RESET;
-			case 'S': return WHITE_BRIGHT + c + RESET;
-			default: return String.valueOf(c);
-		}
+public class StringUtils {
+
+	public static final String RESET = "[0m";
+	public static final String GREEN = "[32m";
+	public static final String YELLOW = "[33m";
+	public static final String WHITE_BRIGHT = "[97m";
+	public static final String BROWN = "[38;5;94m";
+
+	private static final Map<Character, String> TILE_COLORS = new HashMap<>();
+	static {
+		TILE_COLORS.put('P', GREEN);
+		TILE_COLORS.put('c', YELLOW);
+		TILE_COLORS.put('C', BROWN);
+		TILE_COLORS.put('S', WHITE_BRIGHT);
 	}
-	
+
+	public static String colorize(char character) {
+		String color = TILE_COLORS.get(character);
+		if (color == null) {
+			return String.valueOf(character);
+		}
+		return color + character + RESET;
+	}
+
 	public static String possessive(String name) {
 		if (name.toLowerCase().endsWith("s")) {
 			return name + "'";

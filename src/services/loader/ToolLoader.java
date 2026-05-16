@@ -15,9 +15,9 @@ public class ToolLoader {
 				DatabaseRegistry.getList(Tool.class).add(new Tool(name, price));
 			};
 			toolLoader.loadFile("system_data/tools.txt");
-	    } catch (FileNotFoundException e) {
+	    } catch (FileNotFoundException exception) {
 	        System.out.println("tools.txt not found");
-	    } catch (IOException e) {
+	    } catch (IOException exception) {
 	        System.out.println("Error loading tools!");
 	    }
 	}

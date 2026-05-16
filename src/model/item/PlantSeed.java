@@ -1,9 +1,11 @@
 package model.item;
 
+import java.util.Locale;
+
 public class PlantSeed extends Item {
 	private char symbol;
 	private int growthTime;
-	
+
 	public PlantSeed(String name, double price, char symbol, int growthTime) {
 		super(name, price);
 		this.symbol = symbol;
@@ -21,5 +23,11 @@ public class PlantSeed extends Item {
 	@Override
 	public String toString() {
 		return String.format("%s Seed [%c] (Growth: %d days) - $%.0f", getName(), symbol, growthTime, getPrice());
+	}
+
+	@Override
+	public String toSaveLine(int quantity) {
+		return String.format(Locale.ROOT, "SEED#%s#%.2f#%c#%d#%d",
+				getName(), getPrice(), symbol, growthTime, quantity);
 	}
 }

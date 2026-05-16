@@ -65,7 +65,7 @@ public class BuySeedCommand extends BuyItemCommand<PlantSeed> {
                 System.out.printf("How many %s seeds would you like to purchase: ", seedName);
                 quantity = sc.nextInt();
                 sc.nextLine();
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 sc.nextLine();
             }
         } while (quantity <= 0);

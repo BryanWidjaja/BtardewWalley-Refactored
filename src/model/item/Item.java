@@ -3,7 +3,7 @@ package model.item;
 public abstract class Item {
 	private String name;
 	private double price;
-	
+
 	public Item(String name, double price) {
 		this.name = name;
 		this.price = price;
@@ -20,4 +20,6 @@ public abstract class Item {
 	public boolean canStackWith(Item other) {
 		return this.getClass().equals(other.getClass()) && this.name.equals(other.getName());
 	}
+
+	public abstract String toSaveLine(int quantity);
 }

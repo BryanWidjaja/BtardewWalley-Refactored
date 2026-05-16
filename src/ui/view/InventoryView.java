@@ -35,7 +35,7 @@ public class InventoryView {
             menu.render();
 
             String input = scanner.nextLine().trim();
-            if (input.equals("6")) {
+            if (input.equals(String.valueOf(menu.exitOption()))) {
                 return;
             }
 

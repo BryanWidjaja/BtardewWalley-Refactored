@@ -7,10 +7,11 @@ import model.PlayerItem;
 import model.animal.Animal;
 import model.item.AnimalProduct;
 import model.item.FarmProduct;
+import model.item.Item;
 import model.item.PlantSeed;
 import model.item.Tool;
 import services.StoreService;
-import ui.view.GameMapView;
+import ui.view.MapBoard;
 import util.GradeUtils;
 
 public class StoreViewModel {
@@ -36,9 +37,19 @@ public class StoreViewModel {
                 .collect(Collectors.toList());
     }
 
+    public Tool getTool(int choice) {
+        List<Tool> tools = getAvailableTools();
+        if (choice < 1 || choice > tools.size()) {
+            return null;
+        }
+        return tools.get(choice - 1);
+    }
+
     public boolean buyTool(int choice) {
         Tool selectedTool = getTool(choice);
-        if (selectedTool == null) return false;
+        if (selectedTool == null) {
+            return false;
+        }
 
         int price = (int) selectedTool.getPrice();
         if (playerViewModel.spendMoney(price)) {
@@ -48,28 +59,23 @@ public class StoreViewModel {
         return false;
     }
 
-    public Tool getTool(int choice) {
-        List<Tool> tools = getAvailableTools();
-        if (choice < 1 || choice > tools.size()) return null;
-        return tools.get(choice - 1);
-    }
-
-    public boolean buyTool(String name) {
-        Tool tool = storeService.findTool(name);
-        if (tool == null) return false;
-        if (playerViewModel.hasItem(tool.getName())) return false;
-        if (!playerViewModel.spendMoney(tool.getPrice())) return false;
-        playerViewModel.addItem(new Tool(tool.getName(), (int) tool.getPrice()), 1);
-        return true;
-    }
-
     public List<PlantSeed> getAvailableSeeds() {
         return storeService.getSeeds();
     }
 
+    public PlantSeed getSeed(int choice) {
+        List<PlantSeed> seeds = getAvailableSeeds();
+        if (choice < 1 || choice > seeds.size()) {
+            return null;
+        }
+        return seeds.get(choice - 1);
+    }
+
     public boolean buySeed(int choice, int quantity) {
         PlantSeed selectedSeed = getSeed(choice);
-        if (selectedSeed == null) return false;
+        if (selectedSeed == null) {
+            return false;
+        }
 
         double totalPrice = selectedSeed.getPrice() * quantity;
         if (playerViewModel.spendMoney(totalPrice)) {
@@ -79,28 +85,23 @@ public class StoreViewModel {
         return false;
     }
 
-    public PlantSeed getSeed(int choice) {
-        List<PlantSeed> seeds = getAvailableSeeds();
-        if (choice < 1 || choice > seeds.size()) return null;
-        return seeds.get(choice - 1);
-    }
-
-    public boolean buySeed(String name, int quantity) {
-        PlantSeed seed = storeService.findSeed(name);
-        if (seed == null) return false;
-        double totalPrice = seed.getPrice() * quantity;
-        if (!playerViewModel.spendMoney(totalPrice)) return false;
-        playerViewModel.addItem(seed, quantity);
-        return true;
-    }
-
     public List<Animal> getAvailableAnimals() {
         return storeService.getAnimals();
     }
 
+    public Animal getAnimal(int choice) {
+        List<Animal> animals = getAvailableAnimals();
+        if (choice < 1 || choice > animals.size()) {
+            return null;
+        }
+        return animals.get(choice - 1);
+    }
+
     public boolean buyAnimal(int choice, String name) {
         Animal selectedAnimal = getAnimal(choice);
-        if (selectedAnimal == null) return false;
+        if (selectedAnimal == null) {
+            return false;
+        }
 
         if (playerViewModel.spendMoney(selectedAnimal.getPrice())) {
             mapViewModel.insertAnimal(selectedAnimal.getType(), name);
@@ -109,53 +110,46 @@ public class StoreViewModel {
         return false;
     }
 
-    public Animal getAnimal(int choice) {
-        List<Animal> animals = getAvailableAnimals();
-        if (choice < 1 || choice > animals.size()) return null;
-        return animals.get(choice - 1);
-    }
-
-    public boolean buyAnimal(String type, String name) {
-        Animal template = storeService.findAnimalTemplate(type);
-        if (template == null) return false;
-        if (!playerViewModel.spendMoney(template.getPrice())) return false;
-        mapViewModel.insertAnimal(type, name);
-        return true;
-    }
-
     public boolean sellAnimal(int choice) {
         List<Animal> animals = playerViewModel.getAnimals();
-        if (choice < 1 || choice > animals.size()) return false;
+        if (choice < 1 || choice > animals.size()) {
+            return false;
+        }
 
         Animal selectedAnimal = animals.get(choice - 1);
         playerViewModel.addMoney(selectedAnimal.getPrice());
-        GameMapView.ANIMAL_FARM_MAP[selectedAnimal.getPosition().getX()]
-                                   [selectedAnimal.getPosition().getY()] = ' ';
+        MapBoard.clearAnimalAt(selectedAnimal.getPosition().getX(), selectedAnimal.getPosition().getY());
         animals.remove(selectedAnimal);
         return true;
     }
 
     public boolean sellAnimalProduct(int displayChoice, int quantity) {
-        int selectedIndex = playerViewModel.findAnimalProductIndex(displayChoice);
-        if (selectedIndex == -1) return false;
+        return sellProduct(displayChoice, quantity, AnimalProduct.class);
+    }
+
+    public boolean sellFarmProduct(int displayChoice, int quantity) {
+        return sellProduct(displayChoice, quantity, FarmProduct.class);
+    }
+
+    private <T extends Item> boolean sellProduct(int displayChoice, int quantity, Class<T> type) {
+        int selectedIndex = playerViewModel.findItemIndex(type, displayChoice);
+        if (selectedIndex == -1) {
+            return false;
+        }
 
         PlayerItem selectedItem = playerViewModel.getInventory().get(selectedIndex);
-        AnimalProduct product = (AnimalProduct) selectedItem.getItem();
-
-        playerViewModel.addMoney(product.getSellingPrice() * quantity);
+        playerViewModel.addMoney(sellingPriceOf(selectedItem.getItem()) * quantity);
         playerViewModel.removeItemQuantity(selectedIndex, quantity);
         return true;
     }
 
-    public boolean sellFarmProduct(int displayChoice, int quantity) {
-        int selectedIndex = playerViewModel.findFarmProductIndex(displayChoice);
-        if (selectedIndex == -1) return false;
-
-        PlayerItem selectedItem = playerViewModel.getInventory().get(selectedIndex);
-        FarmProduct product = (FarmProduct) selectedItem.getItem();
-
-        playerViewModel.addMoney(product.getSellingPrice() * quantity);
-        playerViewModel.removeItemQuantity(selectedIndex, quantity);
-        return true;
+    private double sellingPriceOf(Item item) {
+        if (item instanceof AnimalProduct) {
+            return ((AnimalProduct) item).getSellingPrice();
+        }
+        if (item instanceof FarmProduct) {
+            return ((FarmProduct) item).getSellingPrice();
+        }
+        return item.getPrice();
     }
 }

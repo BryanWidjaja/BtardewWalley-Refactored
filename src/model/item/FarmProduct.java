@@ -1,8 +1,10 @@
 package model.item;
 
+import java.util.Locale;
+
 public class FarmProduct extends Item {
 	private FarmProductFreshness freshness;
-	
+
     public FarmProduct(String name, double price, int freshnessLevel) {
     	super(name, price);
     	this.freshness = FarmProductFreshness.fromLevel(freshnessLevel);
@@ -31,12 +33,20 @@ public class FarmProduct extends Item {
 
 	@Override
 	public boolean canStackWith(Item other) {
-		if (!super.canStackWith(other)) return false;
+		if (!super.canStackWith(other)) {
+			return false;
+		}
 		return this.freshness == ((FarmProduct) other).getFreshness();
 	}
 
 	@Override
 	public String toString() {
 		return String.format("%s(%d)", getName(), freshness.getLevel());
+	}
+
+	@Override
+	public String toSaveLine(int quantity) {
+		return String.format(Locale.ROOT, "FARM_PRODUCT#%s#%.2f#%d#%d",
+				getName(), getPrice(), freshness.getLevel(), quantity);
 	}
 }
