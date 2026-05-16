@@ -20,7 +20,12 @@ public class StoreViewModel {
     private MapViewModel mapViewModel;
     private GradeUtils gradeUtils;
 
-    public StoreViewModel(StoreService storeService, PlayerViewModel playerViewModel, MapViewModel mapViewModel, GradeUtils gradeUtils) {
+    public StoreViewModel(
+        StoreService storeService,
+        PlayerViewModel playerViewModel,
+        MapViewModel mapViewModel,
+        GradeUtils gradeUtils
+    ) {
         this.storeService = storeService;
         this.playerViewModel = playerViewModel;
         this.mapViewModel = mapViewModel;

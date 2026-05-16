@@ -20,7 +20,8 @@ public class GiveWheatSeedsCommand implements Command {
     @Override
     public void execute() {
         playerViewModel.addItem(
-                new PlantSeed(SEED_NAME, SEED_PRICE, SEED_SYMBOL, SEED_GROWTH_TIME),
-                SEED_QUANTITY);
+            new PlantSeed(SEED_NAME, SEED_PRICE, SEED_SYMBOL, SEED_GROWTH_TIME),
+            SEED_QUANTITY
+        );
     }
 }

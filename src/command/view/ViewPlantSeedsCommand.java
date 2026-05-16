@@ -13,8 +13,12 @@ public class ViewPlantSeedsCommand extends ViewInventoryItemsCommand<PlantSeed> 
 
     @Override
     protected void displayItem(int index, PlayerItem item) {
-        System.out.printf("%d. %s - %d\n", index,
-                item.getItem().getName(), item.getQuantity());
+        System.out.printf(
+            "%d. %s - %d\n",
+            index,
+            item.getItem().getName(),
+            item.getQuantity()
+        );
     }
 
     @Override

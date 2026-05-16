@@ -31,8 +31,9 @@ public class FarmMapStrategy implements MapEventStrategy {
         if (here.equals(PORTAL_TO_TOWN)) {
             playerViewModel.setCurrMapIndex(TOWN_MAP_INDEX);
             playerViewModel.getPosition().moveTo(
-                    TownMapStrategy.PORTAL_TO_PLANT_FARM.getX(),
-                    TownMapStrategy.PORTAL_TO_PLANT_FARM.getY());
+                TownMapStrategy.PORTAL_TO_PLANT_FARM.getX(),
+                TownMapStrategy.PORTAL_TO_PLANT_FARM.getY()
+            );
             return GameEvent.NONE;
         }
 

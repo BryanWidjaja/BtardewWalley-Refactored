@@ -20,17 +20,19 @@ public class GameFacade {
         initializer.initialize();
 
         renderer = new GameRenderingService(
-                initializer.getMapViewModel(),
-                initializer.getPlayerViewModel(),
-                initializer.getIO().getConsoleUtils());
+            initializer.getMapViewModel(),
+            initializer.getPlayerViewModel(),
+            initializer.getIO().getConsoleUtils()
+        );
 
         interactionService = new GameInteractionService(
-                initializer.getIO().getScanner(),
-                initializer.getCurrentUser(),
-                initializer.getPlayerViewModel(),
-                initializer.getMapViewModel(),
-                initializer.getEventCommands(),
-                initializer.getDevModeCommands());
+            initializer.getIO().getScanner(),
+            initializer.getCurrentUser(),
+            initializer.getPlayerViewModel(),
+            initializer.getMapViewModel(),
+            initializer.getEventCommands(),
+            initializer.getDevModeCommands()
+        );
     }
 
     private void loop() {

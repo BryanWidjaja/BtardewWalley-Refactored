@@ -12,7 +12,15 @@ public abstract class Plant {
 	private double price;
 	private boolean harvestable;
 
-	public Plant(char symbol, String name, int plantX, int plantY, int growthTime, double price, boolean harvestable) {
+	public Plant(
+		char symbol,
+		String name,
+		int plantX,
+		int plantY,
+		int growthTime,
+		double price,
+		boolean harvestable
+	) {
 		this.symbol = symbol;
 		this.name = name;
 		this.position = new Coordinate(plantX, plantY);
@@ -57,8 +65,16 @@ public abstract class Plant {
 	}
 
 	public String toSaveLine() {
-		return String.format(Locale.ROOT, "PLANT#%c#%s#%d#%d#%d#%.2f#%b",
-				symbol, name, position.getX(), position.getY(),
-				getGrowthTime(), price, harvestable);
+		return String.format(
+			Locale.ROOT,
+			"PLANT#%c#%s#%d#%d#%d#%.2f#%b",
+			symbol,
+			name,
+			position.getX(),
+			position.getY(),
+			getGrowthTime(),
+			price,
+			harvestable
+		);
 	}
 }

@@ -37,7 +37,13 @@ public class AnimalProduct extends Item {
 
 	@Override
 	public String toSaveLine(int quantity) {
-		return String.format(Locale.ROOT, "ANIMAL_PRODUCT#%s#%.2f#%d#%d",
-				getName(), getPrice(), grade.getLevel(), quantity);
+		return String.format(
+			Locale.ROOT,
+			"ANIMAL_PRODUCT#%s#%.2f#%d#%d",
+			getName(),
+			getPrice(),
+			grade.getLevel(),
+			quantity
+		);
 	}
 }

@@ -27,7 +27,14 @@ public class PlantSeed extends Item {
 
 	@Override
 	public String toSaveLine(int quantity) {
-		return String.format(Locale.ROOT, "SEED#%s#%.2f#%c#%d#%d",
-				getName(), getPrice(), symbol, growthTime, quantity);
+		return String.format(
+			Locale.ROOT,
+			"SEED#%s#%.2f#%c#%d#%d",
+			getName(),
+			getPrice(),
+			symbol,
+			growthTime,
+			quantity
+		);
 	}
 }

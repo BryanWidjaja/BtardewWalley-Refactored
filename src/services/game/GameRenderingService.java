@@ -12,7 +12,11 @@ public class GameRenderingService {
     private final PlayerViewModel playerViewModel;
     private final ConsoleUtils consoleUtils;
 
-    public GameRenderingService(MapViewModel mapViewModel, PlayerViewModel playerViewModel, ConsoleUtils consoleUtils) {
+    public GameRenderingService(
+        MapViewModel mapViewModel,
+        PlayerViewModel playerViewModel,
+        ConsoleUtils consoleUtils
+    ) {
         this.mapViewModel = mapViewModel;
         this.playerViewModel = playerViewModel;
         this.consoleUtils = consoleUtils;

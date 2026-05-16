@@ -14,7 +14,12 @@ public abstract class SellItemCommand<T> implements Command {
     protected final Scanner sc;
     protected final ConsoleUtils consoleUtils;
 
-    public SellItemCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils) {
+    public SellItemCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils
+    ) {
         this.storeViewModel = storeViewModel;
         this.playerViewModel = playerViewModel;
         this.sc = sc;

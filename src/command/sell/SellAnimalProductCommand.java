@@ -11,7 +11,12 @@ import viewmodel.StoreViewModel;
 
 public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> {
 
-    public SellAnimalProductCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils) {
+    public SellAnimalProductCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils
+    ) {
         super(storeViewModel, playerViewModel, sc, consoleUtils, AnimalProduct.class);
     }
 
@@ -28,8 +33,14 @@ public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> 
     @Override
     protected void displayTable(List<PlayerItem> items) {
         System.out.println("===========================================================");
-        System.out.printf("| %-3s | %-10s | %-10s | %-10s | %-10s |\n",
-                "No.", "Name", "Grade", "Quantity", "Price");
+        System.out.printf(
+            "| %-3s | %-10s | %-10s | %-10s | %-10s |\n",
+            "No.",
+            "Name",
+            "Grade",
+            "Quantity",
+            "Price"
+        );
         System.out.println("===========================================================");
 
         int counter = 1;

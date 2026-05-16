@@ -32,8 +32,16 @@ public class AnimalLoader {
 				AnimalProductKind productKind = new AnimalProductKind(productName, productPrice);
 				DatabaseRegistry.getList(AnimalProductKind.class).add(productKind);
 
-				Animal animal = AnimalFactoryProvider.getFactory(type)
-						.createAnimal("", productKind, harvestRate, harvestRate, 0, 0, price, false);
+				Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
+					"",
+					productKind,
+					harvestRate,
+					harvestRate,
+					0,
+					0,
+					price,
+					false
+				);
 				DatabaseRegistry.getList(Animal.class).add(animal);
 			}
 		} catch (FileNotFoundException exception) {

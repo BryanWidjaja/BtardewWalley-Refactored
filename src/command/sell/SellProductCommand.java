@@ -11,7 +11,13 @@ import viewmodel.StoreViewModel;
 public abstract class SellProductCommand<T extends Item> extends SellItemCommand<PlayerItem> {
     private final Class<T> productType;
 
-    public SellProductCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils, Class<T> productType) {
+    public SellProductCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils,
+        Class<T> productType
+    ) {
         super(storeViewModel, playerViewModel, sc, consoleUtils);
         this.productType = productType;
     }

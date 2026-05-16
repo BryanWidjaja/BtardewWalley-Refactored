@@ -18,8 +18,13 @@ public class EventCommandRegistry {
     private final MainViewModel mainViewModel;
     private final Views views;
 
-    public EventCommandRegistry(PlayerViewModel playerViewModel, MapViewModel mapViewModel,
-                                StoreViewModel storeViewModel, MainViewModel mainViewModel, Views views) {
+    public EventCommandRegistry(
+        PlayerViewModel playerViewModel,
+        MapViewModel mapViewModel,
+        StoreViewModel storeViewModel,
+        MainViewModel mainViewModel,
+        Views views
+    ) {
         this.playerViewModel = playerViewModel;
         this.mapViewModel = mapViewModel;
         this.storeViewModel = storeViewModel;

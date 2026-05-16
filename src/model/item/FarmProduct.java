@@ -46,7 +46,13 @@ public class FarmProduct extends Item {
 
 	@Override
 	public String toSaveLine(int quantity) {
-		return String.format(Locale.ROOT, "FARM_PRODUCT#%s#%.2f#%d#%d",
-				getName(), getPrice(), freshness.getLevel(), quantity);
+		return String.format(
+			Locale.ROOT,
+			"FARM_PRODUCT#%s#%.2f#%d#%d",
+			getName(),
+			getPrice(),
+			freshness.getLevel(),
+			quantity
+		);
 	}
 }

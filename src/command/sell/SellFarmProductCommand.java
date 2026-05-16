@@ -11,7 +11,12 @@ import viewmodel.StoreViewModel;
 
 public class SellFarmProductCommand extends SellProductCommand<FarmProduct> {
 
-    public SellFarmProductCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils) {
+    public SellFarmProductCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils
+    ) {
         super(storeViewModel, playerViewModel, sc, consoleUtils, FarmProduct.class);
     }
 
@@ -28,8 +33,14 @@ public class SellFarmProductCommand extends SellProductCommand<FarmProduct> {
     @Override
     protected void displayTable(List<PlayerItem> items) {
         System.out.println("===========================================================");
-        System.out.printf("| %-3s | %-10s | %-10s | %-10s | %-10s |\n",
-                "No.", "Name", "Freshness", "Quantity", "Price");
+        System.out.printf(
+            "| %-3s | %-10s | %-10s | %-10s | %-10s |\n",
+            "No.",
+            "Name",
+            "Freshness",
+            "Quantity",
+            "Price"
+        );
         System.out.println("===========================================================");
 
         int counter = 1;

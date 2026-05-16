@@ -13,8 +13,15 @@ public abstract class Animal {
 	protected Coordinate position;
 	protected double price;
 
-	public Animal(char symbol, String name, String type, AnimalProductKind animalProduct,
-			HarvestStats harvestStats, Coordinate position, double price) {
+	public Animal(
+		char symbol,
+		String name,
+		String type,
+		AnimalProductKind animalProduct,
+		HarvestStats harvestStats,
+		Coordinate position,
+		double price
+	) {
 		this.symbol = symbol;
 		this.name = name;
 		this.type = type;
@@ -71,9 +78,18 @@ public abstract class Animal {
 	public abstract String requiredToolName();
 
 	public String toSaveLine() {
-		return String.format(Locale.ROOT, "ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
-				symbol, name, type, animalProduct.getName(),
-				getHarvestRate(), position.getX(), position.getY(),
-				price, isHarvestable());
+		return String.format(
+			Locale.ROOT,
+			"ANIMAL#%c#%s#%s#%s#%d#%d#%d#%.2f#%b",
+			symbol,
+			name,
+			type,
+			animalProduct.getName(),
+			getHarvestRate(),
+			position.getX(),
+			position.getY(),
+			price,
+			isHarvestable()
+		);
 	}
 }

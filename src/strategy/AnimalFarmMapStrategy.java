@@ -24,8 +24,9 @@ public class AnimalFarmMapStrategy implements MapEventStrategy {
         if (x == PORTAL_TO_TOWN.getX() && y == PORTAL_TO_TOWN.getY()) {
             playerViewModel.setCurrMapIndex(TOWN_MAP_INDEX);
             playerViewModel.getPosition().moveTo(
-                    TownMapStrategy.PORTAL_TO_ANIMAL_FARM.getX(),
-                    TownMapStrategy.PORTAL_TO_ANIMAL_FARM.getY());
+                TownMapStrategy.PORTAL_TO_ANIMAL_FARM.getX(),
+                TownMapStrategy.PORTAL_TO_ANIMAL_FARM.getY()
+            );
             return GameEvent.NONE;
         }
 

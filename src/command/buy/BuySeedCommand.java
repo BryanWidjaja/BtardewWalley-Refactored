@@ -10,7 +10,12 @@ import viewmodel.StoreViewModel;
 
 public class BuySeedCommand extends BuyItemCommand<PlantSeed> {
 
-    public BuySeedCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils) {
+    public BuySeedCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils
+    ) {
         super(storeViewModel, playerViewModel, sc, consoleUtils);
     }
 
@@ -32,8 +37,13 @@ public class BuySeedCommand extends BuyItemCommand<PlantSeed> {
 
         int counter = 1;
         for (PlantSeed seed : items) {
-            System.out.printf("| %-3d | %-10s | %-12d | %-10.1f |\n",
-                    counter++, seed.getName(), seed.getGrowthTime(), seed.getPrice());
+            System.out.printf(
+                "| %-3d | %-10s | %-12d | %-10.1f |\n",
+                counter++,
+                seed.getName(),
+                seed.getGrowthTime(),
+                seed.getPrice()
+            );
         }
         System.out.println("================================================");
     }

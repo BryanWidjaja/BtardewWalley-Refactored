@@ -11,12 +11,25 @@ public class ChickenFactory implements AnimalFactory {
     private final AnimalDirector director = new AnimalDirector();
 
     @Override
-    public Animal createAnimal(String name, AnimalProductKind animalProduct, int harvestRate, int defaultHarvestRate,
-            int x, int y, double price, boolean harvestable) {
+    public Animal createAnimal(
+        String name,
+        AnimalProductKind animalProduct,
+        int harvestRate,
+        int defaultHarvestRate,
+        int x,
+        int y,
+        double price,
+        boolean harvestable
+    ) {
         ChickenBuilder builder = new ChickenBuilder();
-        director.build(builder, name, animalProduct,
-                       new HarvestStats(harvestRate, defaultHarvestRate, harvestable),
-                       new Coordinate(x, y), price);
+        director.build(
+            builder,
+            name,
+            animalProduct,
+            new HarvestStats(harvestRate, defaultHarvestRate, harvestable),
+            new Coordinate(x, y),
+            price
+        );
         return builder.build();
     }
 }

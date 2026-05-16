@@ -48,9 +48,16 @@ public class PlayerDataSaver {
 	}
 
 	private void writeStats(BufferedWriter writer) throws IOException {
-		writer.write(String.format(Locale.ROOT, "PLAYER#%.2f#%d#%d#%d#%d#%c",
-				player.getMoney(), player.getDay(), player.getCurrMapIndex(),
-				player.getPosition().getX(), player.getPosition().getY(), player.getCurrTile()));
+		writer.write(String.format(
+			Locale.ROOT,
+			"PLAYER#%.2f#%d#%d#%d#%d#%c",
+			player.getMoney(),
+			player.getDay(),
+			player.getCurrMapIndex(),
+			player.getPosition().getX(),
+			player.getPosition().getY(),
+			player.getCurrTile()
+		));
 		writer.newLine();
 	}
 

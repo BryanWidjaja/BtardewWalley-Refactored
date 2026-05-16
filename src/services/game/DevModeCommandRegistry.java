@@ -28,8 +28,13 @@ public class DevModeCommandRegistry {
     private final StoreViewModel storeViewModel;
     private final Views views;
 
-    public DevModeCommandRegistry(User currentUser, PlayerViewModel playerViewModel, MapViewModel mapViewModel,
-                                  StoreViewModel storeViewModel, Views views) {
+    public DevModeCommandRegistry(
+        User currentUser,
+        PlayerViewModel playerViewModel,
+        MapViewModel mapViewModel,
+        StoreViewModel storeViewModel,
+        Views views
+    ) {
         this.currentUser = currentUser;
         this.playerViewModel = playerViewModel;
         this.mapViewModel = mapViewModel;

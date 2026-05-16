@@ -45,9 +45,11 @@ public class AnimalHarvestView {
     }
 
     private void renderPrompt(Animal animal) {
-        System.out.printf("Want to take %s %s?\n",
-                StringUtils.possessive(animal.getName()),
-                animal.getAnimalProduct().getName());
+        System.out.printf(
+            "Want to take %s %s?\n",
+            StringUtils.possessive(animal.getName()),
+            animal.getAnimalProduct().getName()
+        );
         System.out.println("1. Take");
         System.out.println("2. Don't take");
         System.out.print(">> ");
@@ -70,10 +72,12 @@ public class AnimalHarvestView {
             return true;
         }
 
-        System.out.printf("You don't have %s to get %s %s\n",
-                articleFor(requiredTool),
-                StringUtils.possessive(animal.getName()),
-                animal.getAnimalProduct().getName());
+        System.out.printf(
+            "You don't have %s to get %s %s\n",
+            articleFor(requiredTool),
+            StringUtils.possessive(animal.getName()),
+            animal.getAnimalProduct().getName()
+        );
         consoleUtils.pause();
         return false;
     }

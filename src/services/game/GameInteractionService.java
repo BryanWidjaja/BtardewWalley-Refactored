@@ -19,8 +19,14 @@ public class GameInteractionService {
     private final Map<GameEvent, Command> eventCommands;
     private final Map<Character, Command> devModeCommands;
 
-    public GameInteractionService(Scanner scanner, User currentUser, PlayerViewModel playerViewModel, MapViewModel mapViewModel,
-                             Map<GameEvent, Command> eventCommands, Map<Character, Command> devModeCommands) {
+    public GameInteractionService(
+        Scanner scanner,
+        User currentUser,
+        PlayerViewModel playerViewModel,
+        MapViewModel mapViewModel,
+        Map<GameEvent, Command> eventCommands,
+        Map<Character, Command> devModeCommands
+    ) {
         this.scanner = scanner;
         this.currentUser = currentUser;
         this.playerViewModel = playerViewModel;

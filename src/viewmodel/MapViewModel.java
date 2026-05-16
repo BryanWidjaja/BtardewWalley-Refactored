@@ -184,8 +184,12 @@ public class MapViewModel {
         while (iterator.hasNext()) {
             Plant plant = iterator.getNext();
             if (plant.tickGrowth()) {
-                MapBoard.placePlant(plant.getPosition().getX(), plant.getPosition().getY(),
-                        plant.getSymbol(), true);
+                MapBoard.placePlant(
+                    plant.getPosition().getX(),
+                    plant.getPosition().getY(),
+                    plant.getSymbol(),
+                    true
+                );
             }
         }
     }
@@ -205,8 +209,13 @@ public class MapViewModel {
     }
 
     public void insertPlant(PlantSeed seed, int x, int y) {
-        Plant plant = PlantFactoryProvider.getFactory(seed.getName()).createPlant(x, y,
-                seed.getGrowthTime(), seed.getPrice(), false);
+        Plant plant = PlantFactoryProvider.getFactory(seed.getName()).createPlant(
+            x,
+            y,
+            seed.getGrowthTime(),
+            seed.getPrice(),
+            false
+        );
         playerViewModel.getPlants().add(plant);
     }
 
@@ -222,9 +231,10 @@ public class MapViewModel {
             Plant plant = iterator.getNext();
             if (plant.getPosition().getX() == plantX && plant.getPosition().getY() == plantY) {
                 FarmProduct newProduct = new FarmProduct(
-                        plant.getName(),
-                        plant.getPrice(),
-                        FarmProductFreshness.LEVEL_5.getLevel());
+                    plant.getName(),
+                    plant.getPrice(),
+                    FarmProductFreshness.LEVEL_5.getLevel()
+                );
                 playerViewModel.addItem(newProduct, 1);
                 iterator.remove();
                 MapBoard.clearPlantAt(plantX, plantY);
@@ -246,9 +256,15 @@ public class MapViewModel {
         }
 
         Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
-                name, template.getAnimalProduct(),
-                template.getDefaultHarvestRate(), template.getDefaultHarvestRate(),
-                position.getX(), position.getY(), template.getPrice(), true);
+            name,
+            template.getAnimalProduct(),
+            template.getDefaultHarvestRate(),
+            template.getDefaultHarvestRate(),
+            position.getX(),
+            position.getY(),
+            template.getPrice(),
+            true
+        );
         playerViewModel.getAnimals().add(animal);
         MapBoard.placeAnimal(position.getX(), position.getY(), animal.getSymbol());
     }
@@ -282,9 +298,10 @@ public class MapViewModel {
         AnimalProductGrade grade = gradeUtils.getGrade(playerViewModel.getDay());
         double basePrice = animal.getAnimalProduct().getBasePrice();
         AnimalProduct product = new AnimalProduct(
-                animal.getAnimalProduct().getName(),
-                (int) (basePrice * grade.getMultiplier()),
-                grade);
+            animal.getAnimalProduct().getName(),
+            (int) (basePrice * grade.getMultiplier()),
+            grade
+        );
 
         playerViewModel.addItem(product, 1);
         animal.collectProduct();
@@ -315,8 +332,9 @@ public class MapViewModel {
     public void devModeTeleport(int mapIndex) {
         playerViewModel.setCurrMapIndex(mapIndex);
         playerViewModel.getPosition().moveTo(
-                DEV_TELEPORT_DESTINATION.getX(),
-                DEV_TELEPORT_DESTINATION.getY());
+            DEV_TELEPORT_DESTINATION.getX(),
+            DEV_TELEPORT_DESTINATION.getY()
+        );
         devModeClearAllPlayers();
     }
 }

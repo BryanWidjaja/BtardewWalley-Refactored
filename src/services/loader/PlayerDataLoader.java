@@ -104,7 +104,9 @@ public class PlayerDataLoader {
 		int seedGrowthTime = Integer.parseInt(parts[4]);
 		int seedQuantity = Integer.parseInt(parts[5]);
 		player.getInventory().add(new PlayerItem(
-				new PlantSeed(seedName, seedPrice, seedSymbol, seedGrowthTime), seedQuantity));
+			new PlantSeed(seedName, seedPrice, seedSymbol, seedGrowthTime),
+			seedQuantity
+		));
 	}
 
 	private void loadAnimalProductLine(String[] parts) {
@@ -138,7 +140,15 @@ public class PlayerDataLoader {
 		AnimalProductKind productKind = lookupAnimalProductKind(productName);
 
 		Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
-				name, productKind, harvestRate, defaultHarvestRate, x, y, price, harvestable);
+			name,
+			productKind,
+			harvestRate,
+			defaultHarvestRate,
+			x,
+			y,
+			price,
+			harvestable
+		);
 		player.getAnimals().add(animal);
 		MapBoard.placeAnimal(x, y, symbol);
 	}

@@ -10,7 +10,12 @@ import viewmodel.StoreViewModel;
 
 public class BuyToolCommand extends BuyItemCommand<Tool> {
 
-    public BuyToolCommand(StoreViewModel storeViewModel, PlayerViewModel playerViewModel, Scanner sc, ConsoleUtils consoleUtils) {
+    public BuyToolCommand(
+        StoreViewModel storeViewModel,
+        PlayerViewModel playerViewModel,
+        Scanner sc,
+        ConsoleUtils consoleUtils
+    ) {
         super(storeViewModel, playerViewModel, sc, consoleUtils);
     }
 
