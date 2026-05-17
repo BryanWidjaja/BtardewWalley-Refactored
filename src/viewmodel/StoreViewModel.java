@@ -3,28 +3,28 @@ package viewmodel;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import model.PlayerItem;
+import model.item.ItemStack;
 import model.animal.Animal;
-import model.item.AnimalProduct;
-import model.item.FarmProduct;
 import model.item.Item;
-import model.item.PlantSeed;
-import model.item.Tool;
-import services.StoreService;
-import ui.view.MapBoard;
-import util.GradeUtils;
+import model.item.animalproduct.AnimalProduct;
+import model.item.animalproduct.AnimalProductGradeRoller;
+import model.item.farmproduct.FarmProduct;
+import model.item.plantseed.PlantSeed;
+import model.item.tool.Tool;
+import model.map.MapBoardState;
+import services.repository.StoreRepository;
 
 public class StoreViewModel {
-    private StoreService storeService;
+    private StoreRepository storeService;
     private PlayerViewModel playerViewModel;
     private MapViewModel mapViewModel;
-    private GradeUtils gradeUtils;
+    private AnimalProductGradeRoller gradeUtils;
 
     public StoreViewModel(
-        StoreService storeService,
+        StoreRepository storeService,
         PlayerViewModel playerViewModel,
         MapViewModel mapViewModel,
-        GradeUtils gradeUtils
+        AnimalProductGradeRoller gradeUtils
     ) {
         this.storeService = storeService;
         this.playerViewModel = playerViewModel;
@@ -32,7 +32,7 @@ public class StoreViewModel {
         this.gradeUtils = gradeUtils;
     }
 
-    public GradeUtils getGradeUtils() {
+    public AnimalProductGradeRoller getGradeUtils() {
         return gradeUtils;
     }
 
@@ -123,7 +123,7 @@ public class StoreViewModel {
 
         Animal selectedAnimal = animals.get(choice - 1);
         playerViewModel.addMoney(selectedAnimal.getPrice());
-        MapBoard.clearAnimalAt(selectedAnimal.getPosition().getX(), selectedAnimal.getPosition().getY());
+        MapBoardState.clearAnimalAt(selectedAnimal.getPosition().getX(), selectedAnimal.getPosition().getY());
         animals.remove(selectedAnimal);
         return true;
     }
@@ -142,7 +142,7 @@ public class StoreViewModel {
             return false;
         }
 
-        PlayerItem selectedItem = playerViewModel.getInventory().get(selectedIndex);
+        ItemStack selectedItem = playerViewModel.getInventory().get(selectedIndex);
         playerViewModel.addMoney(sellingPriceOf(selectedItem.getItem()) * quantity);
         playerViewModel.removeItemQuantity(selectedIndex, quantity);
         return true;

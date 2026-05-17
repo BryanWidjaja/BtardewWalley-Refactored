@@ -5,26 +5,28 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import database.DatabaseRegistry;
-import factory.animal.AnimalFactoryProvider;
-import factory.plant.PlantFactoryProvider;
 import iterator.Iterator;
 import iterator.ListIterator;
+
+import store.GameCatalog;
+import factory.animal.AnimalFactoryProvider;
+import factory.plant.PlantFactoryProvider;
 import model.Coordinate;
-import model.PlayerItem;
+import model.GameEvent;
+import model.item.ItemStack;
 import model.animal.Animal;
-import model.item.AnimalProduct;
-import model.item.AnimalProductGrade;
-import model.item.FarmProduct;
-import model.item.FarmProductFreshness;
-import model.item.PlantSeed;
-import model.plants.Plant;
+import model.item.animalproduct.AnimalProduct;
+import model.item.animalproduct.AnimalProductGrade;
+import model.item.animalproduct.AnimalProductGradeRoller;
+import model.item.farmproduct.FarmProduct;
+import model.item.farmproduct.FarmProductFreshness;
+import model.item.plantseed.PlantSeed;
+import model.plant.Plant;
 import strategy.AnimalFarmMapStrategy;
 import strategy.FarmMapStrategy;
-import strategy.MapEventStrategy;
+import strategy.MapStrategy;
 import strategy.TownMapStrategy;
-import ui.view.MapBoard;
-import util.GradeUtils;
+import model.map.MapBoardState;
 
 public class MapViewModel {
     public static final String DEV_MODE_INPUT = "devmode";
@@ -43,13 +45,13 @@ public class MapViewModel {
 
     private PlayerViewModel playerViewModel;
     private Random random;
-    private GradeUtils gradeUtils;
+    private AnimalProductGradeRoller gradeUtils;
     private Animal pendingAnimal;
     private int pendingX;
     private int pendingY;
-    private Map<Integer, MapEventStrategy> eventStrategies;
+    private Map<Integer, MapStrategy> eventStrategies;
 
-    public MapViewModel(PlayerViewModel playerViewModel, Random random, GradeUtils gradeUtils) {
+    public MapViewModel(PlayerViewModel playerViewModel, Random random, AnimalProductGradeRoller gradeUtils) {
         this.playerViewModel = playerViewModel;
         this.random = random;
         this.gradeUtils = gradeUtils;
@@ -85,7 +87,7 @@ public class MapViewModel {
     }
 
     public char[][] getCurrentMap() {
-        return DatabaseRegistry.getList(char[][].class).get(playerViewModel.getCurrMapIndex());
+        return MapBoardState.getMap(playerViewModel.getCurrMapIndex());
     }
 
     public int getCurrentMapIndex() {
@@ -154,11 +156,11 @@ public class MapViewModel {
         currMap[playerPos.getX()][playerPos.getY()] = playerViewModel.getCurrTile();
         playerViewModel.setCurrTile(currMap[newX][newY]);
         playerPos.moveTo(newX, newY);
-        currMap[newX][newY] = MapBoard.PLAYER_TILE;
+        currMap[newX][newY] = MapBoardState.PLAYER_TILE;
     }
 
     private GameEvent triggerEvent(int x, int y) {
-        MapEventStrategy strategy = eventStrategies.get(playerViewModel.getCurrMapIndex());
+        MapStrategy strategy = eventStrategies.get(playerViewModel.getCurrMapIndex());
         if (strategy != null) {
             return strategy.checkEvent(x, y, playerViewModel);
         }
@@ -184,7 +186,7 @@ public class MapViewModel {
         while (iterator.hasNext()) {
             Plant plant = iterator.getNext();
             if (plant.tickGrowth()) {
-                MapBoard.placePlant(
+                MapBoardState.placePlant(
                     plant.getPosition().getX(),
                     plant.getPosition().getY(),
                     plant.getSymbol(),
@@ -195,9 +197,9 @@ public class MapViewModel {
     }
 
     private void updateFreshness() {
-        Iterator<PlayerItem> iterator = new ListIterator<>(playerViewModel.getInventory());
+        Iterator<ItemStack> iterator = new ListIterator<>(playerViewModel.getInventory());
         while (iterator.hasNext()) {
-            PlayerItem item = iterator.getNext();
+            ItemStack item = iterator.getNext();
             if (item.getItem() instanceof FarmProduct) {
                 FarmProduct farmProduct = (FarmProduct) item.getItem();
                 farmProduct.tickFreshness();
@@ -237,8 +239,8 @@ public class MapViewModel {
                 );
                 playerViewModel.addItem(newProduct, 1);
                 iterator.remove();
-                MapBoard.clearPlantAt(plantX, plantY);
-                playerViewModel.setCurrTile(MapBoard.EMPTY_PLANT_TILE);
+                MapBoardState.clearPlantAt(plantX, plantY);
+                playerViewModel.setCurrTile(MapBoardState.EMPTY_PLANT_TILE);
                 break;
             }
         }
@@ -266,11 +268,11 @@ public class MapViewModel {
             true
         );
         playerViewModel.getAnimals().add(animal);
-        MapBoard.placeAnimal(position.getX(), position.getY(), animal.getSymbol());
+        MapBoardState.placeAnimal(position.getX(), position.getY(), animal.getSymbol());
     }
 
     private Animal findAnimalTemplate(String type) {
-        for (Animal animal : DatabaseRegistry.getList(Animal.class)) {
+        for (Animal animal : GameCatalog.getAnimals()) {
             if (animal.getType().equals(type)) {
                 return animal;
             }
@@ -279,12 +281,12 @@ public class MapViewModel {
     }
 
     private Coordinate pickFreePosition() {
-        int rows = MapBoard.animalRows();
-        int cols = MapBoard.animalCols();
+        int rows = MapBoardState.animalRows();
+        int cols = MapBoardState.animalCols();
         while (true) {
             int x = random.nextInt(rows);
             int y = random.nextInt(cols);
-            if (!MapBoard.isAnimalTileEmpty(x, y)) {
+            if (!MapBoardState.isAnimalTileEmpty(x, y)) {
                 continue;
             }
             if (findAnimalAt(x, y) != null) {
@@ -318,10 +320,10 @@ public class MapViewModel {
     }
 
     public void devModeClearAllPlayers() {
-        for (char[][] map : DatabaseRegistry.getList(char[][].class)) {
+        for (char[][] map : MapBoardState.getMaps()) {
             for (int i = 0; i < map.length; i++) {
                 for (int j = 0; j < map[i].length; j++) {
-                    if (map[i][j] == MapBoard.PLAYER_TILE) {
+                    if (map[i][j] == MapBoardState.PLAYER_TILE) {
                         map[i][j] = ' ';
                     }
                 }

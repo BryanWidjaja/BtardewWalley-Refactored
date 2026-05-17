@@ -6,11 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
 
-import model.Player;
-import model.PlayerItem;
+import model.item.ItemStack;
 import model.User;
 import model.animal.Animal;
-import model.plants.Plant;
+import model.plant.Plant;
+import model.player.Player;
 
 public class PlayerDataSaver {
 	private static final String DATA_DIR = "user_data";
@@ -62,7 +62,7 @@ public class PlayerDataSaver {
 	}
 
 	private void writeInventory(BufferedWriter writer) throws IOException {
-		for (PlayerItem item : player.getInventory()) {
+		for (ItemStack item : player.getInventory()) {
 			writer.write(item.getItem().toSaveLine(item.getQuantity()));
 			writer.newLine();
 		}

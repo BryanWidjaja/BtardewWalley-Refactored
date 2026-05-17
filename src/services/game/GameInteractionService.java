@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import command.Command;
 import model.User;
-import viewmodel.GameEvent;
+import model.GameEvent;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 

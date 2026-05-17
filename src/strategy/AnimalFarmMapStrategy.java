@@ -2,13 +2,13 @@ package strategy;
 
 import java.util.Set;
 
-import model.Coordinate;
 import model.animal.Animal;
-import viewmodel.GameEvent;
+import model.Coordinate;
+import model.GameEvent;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 
-public class AnimalFarmMapStrategy implements MapEventStrategy {
+public class AnimalFarmMapStrategy implements MapStrategy {
     private static final Coordinate PORTAL_TO_TOWN = new Coordinate(5, 0);
     private static final int TOWN_MAP_INDEX = 1;
     private static final Set<Character> ANIMAL_TILES = Set.of('C', 'c', 'S');

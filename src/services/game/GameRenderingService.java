@@ -1,9 +1,9 @@
 package services.game;
 
-import ui.view.GameUIView;
-import ui.view.MapBoard;
+import ui.view.HudView;
+import model.map.MapBoardState;
 import util.ConsoleUtils;
-import util.StringUtils;
+import ui.TileColors;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 
@@ -25,15 +25,15 @@ public class GameRenderingService {
     public void render() {
         consoleUtils.spaceConsole();
         char[][] map = preparedMap();
-        char[][] infoPanel = GameUIView.buildInfoPanel(playerViewModel.getDay(), playerViewModel.getMoney());
-        char[][] keybindPanel = GameUIView.PLAYER_KEYBINDS_UI;
+        char[][] infoPanel = HudView.buildInfoPanel(playerViewModel.getDay(), playerViewModel.getMoney());
+        char[][] keybindPanel = HudView.PLAYER_KEYBINDS_UI;
 
         renderRows(map, infoPanel, keybindPanel);
     }
 
     private char[][] preparedMap() {
         char[][] map = mapViewModel.getCurrentMap();
-        map[playerViewModel.getPosition().getX()][playerViewModel.getPosition().getY()] = MapBoard.PLAYER_TILE;
+        map[playerViewModel.getPosition().getX()][playerViewModel.getPosition().getY()] = MapBoardState.PLAYER_TILE;
         return map;
     }
 
@@ -58,7 +58,7 @@ public class GameRenderingService {
             return;
         }
         for (int col = 0; col < map[row].length; col++) {
-            line.append(StringUtils.colorize(map[row][col]));
+            line.append(TileColors.colorize(map[row][col]));
         }
     }
 

@@ -3,7 +3,7 @@ package command.buy;
 import java.util.List;
 import java.util.Scanner;
 
-import model.item.Tool;
+import model.item.tool.Tool;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;

@@ -3,12 +3,13 @@ package model.animal;
 import java.util.Locale;
 
 import model.Coordinate;
+import model.item.animalproduct.AnimalProductDefinition;
 
 public abstract class Animal {
 	protected char symbol;
 	protected String name;
 	protected String type;
-	protected AnimalProductKind animalProduct;
+	protected AnimalProductDefinition animalProduct;
 	protected HarvestStats harvestStats;
 	protected Coordinate position;
 	protected double price;
@@ -17,7 +18,7 @@ public abstract class Animal {
 		char symbol,
 		String name,
 		String type,
-		AnimalProductKind animalProduct,
+		AnimalProductDefinition animalProduct,
 		HarvestStats harvestStats,
 		Coordinate position,
 		double price
@@ -43,7 +44,7 @@ public abstract class Animal {
 		return type;
 	}
 
-	public AnimalProductKind getAnimalProduct() {
+	public AnimalProductDefinition getAnimalProduct() {
 		return animalProduct;
 	}
 

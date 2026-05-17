@@ -1,18 +1,18 @@
 package command.view;
 
-import model.PlayerItem;
-import model.item.FarmProduct;
+import model.item.ItemStack;
+import model.item.farmproduct.FarmProduct;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 
-public class ViewFarmProductsCommand extends ViewInventoryItemsCommand<FarmProduct> {
+public class ViewFarmProductsCommand extends ViewTypedInventoryCommand<FarmProduct> {
 
     public ViewFarmProductsCommand(PlayerViewModel playerViewModel, ConsoleUtils consoleUtils) {
         super(playerViewModel, consoleUtils, FarmProduct.class);
     }
 
     @Override
-    protected void displayItem(int index, PlayerItem item) {
+    protected void displayItem(int index, ItemStack item) {
         FarmProduct farmProduct = getActualItem(item);
         System.out.printf(
             "%d. %s(%d) - %d\n",

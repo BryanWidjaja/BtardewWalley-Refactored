@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Locale;
 
 import model.Coordinate;
-import model.Player;
-import model.PlayerItem;
 import model.animal.Animal;
 import model.item.Item;
-import model.item.PlantSeed;
-import model.plants.Plant;
+import model.item.ItemStack;
+import model.item.plantseed.PlantSeed;
+import model.plant.Plant;
+import model.player.Player;
 
 public class PlayerViewModel {
     private Player player;
@@ -42,7 +42,7 @@ public class PlayerViewModel {
         return player.spendMoney(amount);
     }
 
-    public List<PlayerItem> getInventory() {
+    public List<ItemStack> getInventory() {
         return player.getInventory();
     }
 
@@ -94,7 +94,7 @@ public class PlayerViewModel {
         return player.hasItem(itemName);
     }
 
-    public <T extends Item> List<PlayerItem> findItemsByType(Class<T> type) {
+    public <T extends Item> List<ItemStack> findItemsByType(Class<T> type) {
         return player.findItemsByType(type);
     }
 

@@ -1,9 +1,9 @@
 package command.devmode;
 
 import command.Command;
-import model.item.AnimalProduct;
-import model.item.AnimalProductGrade;
-import util.GradeUtils;
+import model.item.animalproduct.AnimalProduct;
+import model.item.animalproduct.AnimalProductGrade;
+import model.item.animalproduct.AnimalProductGradeRoller;
 import viewmodel.PlayerViewModel;
 
 public class GiveAnimalProductsCommand implements Command {
@@ -12,9 +12,9 @@ public class GiveAnimalProductsCommand implements Command {
     private static final int WOOL_PRICE = 800;
 
     private final PlayerViewModel playerViewModel;
-    private final GradeUtils gradeUtils;
+    private final AnimalProductGradeRoller gradeUtils;
 
-    public GiveAnimalProductsCommand(PlayerViewModel playerViewModel, GradeUtils gradeUtils) {
+    public GiveAnimalProductsCommand(PlayerViewModel playerViewModel, AnimalProductGradeRoller gradeUtils) {
         this.playerViewModel = playerViewModel;
         this.gradeUtils = gradeUtils;
     }

@@ -3,13 +3,13 @@ package strategy;
 import java.util.HashMap;
 import java.util.Map;
 
+import model.map.MapBoardState;
 import model.Coordinate;
-import ui.view.MapBoard;
-import viewmodel.GameEvent;
+import model.GameEvent;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 
-public class FarmMapStrategy implements MapEventStrategy {
+public class FarmMapStrategy implements MapStrategy {
     private static final Coordinate PORTAL_TO_TOWN = new Coordinate(11, 43);
     private static final int TOWN_MAP_INDEX = 1;
 
@@ -43,12 +43,12 @@ public class FarmMapStrategy implements MapEventStrategy {
         }
 
         char tile = playerViewModel.getCurrTile();
-        if (tile == MapBoard.EMPTY_PLANT_TILE) {
+        if (tile == MapBoardState.EMPTY_PLANT_TILE) {
             mapViewModel.setPendingX(x);
             mapViewModel.setPendingY(y);
             return GameEvent.PLANT_PROMPT;
         }
-        if (Character.isUpperCase(tile) && tile != MapBoard.PLAYER_TILE) {
+        if (Character.isUpperCase(tile) && tile != MapBoardState.PLAYER_TILE) {
             mapViewModel.collectPlant(x, y);
             return GameEvent.NONE;
         }

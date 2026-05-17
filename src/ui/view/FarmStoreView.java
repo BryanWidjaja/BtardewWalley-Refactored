@@ -5,7 +5,7 @@ import java.util.Scanner;
 import command.buy.BuySeedCommand;
 import command.sell.SellFarmProductCommand;
 import ui.menu.MenuComposite;
-import ui.menu.MenuItem;
+import ui.menu.MenuLeaf;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
@@ -21,19 +21,19 @@ public class FarmStoreView {
 
     public void show(StoreViewModel storeViewModel, PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Farm Shop");
-        menu.add(new MenuItem("Buy Seeds", new BuySeedCommand(
+        menu.add(new MenuLeaf("Buy Seeds", new BuySeedCommand(
             storeViewModel,
             playerViewModel,
             scanner,
             consoleUtils
         )));
-        menu.add(new MenuItem("Sell Farm Products", new SellFarmProductCommand(
+        menu.add(new MenuLeaf("Sell Farm Products", new SellFarmProductCommand(
             storeViewModel,
             playerViewModel,
             scanner,
             consoleUtils
         )));
-        menu.add(new MenuItem("Exit", null));
+        menu.add(new MenuLeaf("Exit", null));
 
         while (true) {
             consoleUtils.spaceConsole();

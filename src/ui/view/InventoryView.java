@@ -10,7 +10,7 @@ import command.view.ViewToolsCommand;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import ui.menu.MenuComposite;
-import ui.menu.MenuItem;
+import ui.menu.MenuLeaf;
 
 public class InventoryView {
     private Scanner scanner;
@@ -23,12 +23,12 @@ public class InventoryView {
 
     public void show(PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Inventory Menu");
-        menu.add(new MenuItem("View Animal Products", new ViewAnimalProductsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuItem("View Farm Products", new ViewFarmProductsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuItem("View Animals", new ViewAnimalsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuItem("View Tools", new ViewToolsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuItem("View Plant Seeds", new ViewPlantSeedsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuItem("Exit", null));
+        menu.add(new MenuLeaf("View Animal Products", new ViewAnimalProductsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf("View Farm Products", new ViewFarmProductsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf("View Animals", new ViewAnimalsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf("View Tools", new ViewToolsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf("View Plant Seeds", new ViewPlantSeedsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf("Exit", null));
 
         while (true) {
             consoleUtils.spaceConsole();

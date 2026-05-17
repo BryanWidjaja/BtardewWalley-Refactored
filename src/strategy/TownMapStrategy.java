@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import model.Coordinate;
-import viewmodel.GameEvent;
+import model.GameEvent;
 import viewmodel.PlayerViewModel;
 
-public class TownMapStrategy implements MapEventStrategy {
+public class TownMapStrategy implements MapStrategy {
     static final Coordinate PORTAL_TO_PLANT_FARM = new Coordinate(10, 0);
     static final Coordinate PORTAL_TO_ANIMAL_FARM = new Coordinate(16, 43);
     static final Coordinate PLANT_FARM_ARRIVAL = new Coordinate(11, 43);

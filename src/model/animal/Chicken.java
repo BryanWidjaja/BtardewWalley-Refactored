@@ -1,13 +1,14 @@
 package model.animal;
 
 import model.Coordinate;
+import model.item.animalproduct.AnimalProductDefinition;
 
 public class Chicken extends Animal {
     public Chicken(
         char symbol,
         String name,
         String type,
-        AnimalProductKind animalProduct,
+        AnimalProductDefinition animalProduct,
         HarvestStats harvestStats,
         Coordinate position,
         double price

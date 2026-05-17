@@ -1,7 +1,7 @@
 package factory.plant;
 
-import model.plants.Plant;
-import model.plants.Wheat;
+import model.plant.Plant;
+import model.plant.Wheat;
 
 public class WheatFactory implements PlantFactory {
     @Override

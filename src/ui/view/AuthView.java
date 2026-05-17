@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.function.Supplier;
 
 import model.User;
-import services.UserRepository;
+import services.repository.UserRepository;
 import util.ConsoleUtils;
 
 public class AuthView {

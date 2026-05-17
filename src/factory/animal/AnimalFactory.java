@@ -1,12 +1,12 @@
 package factory.animal;
 
 import model.animal.Animal;
-import model.animal.AnimalProductKind;
+import model.item.animalproduct.AnimalProductDefinition;
 
 public interface AnimalFactory {
     Animal createAnimal(
         String name,
-        AnimalProductKind animalProduct,
+        AnimalProductDefinition animalProduct,
         int harvestRate,
         int defaultHarvestRate,
         int x,

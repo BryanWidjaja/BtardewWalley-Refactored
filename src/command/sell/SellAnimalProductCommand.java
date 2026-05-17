@@ -3,13 +3,13 @@ package command.sell;
 import java.util.List;
 import java.util.Scanner;
 
-import model.PlayerItem;
-import model.item.AnimalProduct;
+import model.item.ItemStack;
+import model.item.animalproduct.AnimalProduct;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
 
-public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> {
+public class SellAnimalProductCommand extends SellItemCommand<ItemStack> {
 
     public SellAnimalProductCommand(
         StoreViewModel storeViewModel,
@@ -17,7 +17,12 @@ public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> 
         Scanner sc,
         ConsoleUtils consoleUtils
     ) {
-        super(storeViewModel, playerViewModel, sc, consoleUtils, AnimalProduct.class);
+        super(storeViewModel, playerViewModel, sc, consoleUtils);
+    }
+
+    @Override
+    protected List<ItemStack> getItems() {
+        return playerViewModel.findItemsByType(AnimalProduct.class);
     }
 
     @Override
@@ -31,7 +36,7 @@ public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> 
     }
 
     @Override
-    protected void displayTable(List<PlayerItem> items) {
+    protected void displayTable(List<ItemStack> items) {
         System.out.println("===========================================================");
         System.out.printf(
             "| %-3s | %-10s | %-10s | %-10s | %-10s |\n",
@@ -44,7 +49,7 @@ public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> 
         System.out.println("===========================================================");
 
         int counter = 1;
-        for (PlayerItem item : items) {
+        for (ItemStack item : items) {
             AnimalProduct animalProduct = (AnimalProduct) item.getItem();
             System.out.printf(
                     "| %-3d | %-10s | %-10s | %-10d | %-10.1f |\n",
@@ -64,12 +69,23 @@ public class SellAnimalProductCommand extends SellProductCommand<AnimalProduct> 
     }
 
     @Override
-    protected String getProductTypeName() {
-        return "animal product";
+    protected void performSale(int choice, ItemStack item) {
+        int quantityToSell = promptQuantity(item.getQuantity());
+        storeViewModel.sellAnimalProduct(choice, quantityToSell);
+        System.out.println("Sucessfully sold an animal product!");
     }
 
-    @Override
-    protected void executeSale(int choice, int quantity) {
-        storeViewModel.sellAnimalProduct(choice, quantity);
+    private int promptQuantity(int maxQuantity) {
+        int quantity = -1;
+        do {
+            System.out.printf("How many items do you want to sell [1-%d]: ", maxQuantity);
+            if (sc.hasNextInt()) {
+                quantity = sc.nextInt();
+                sc.nextLine();
+            } else {
+                sc.nextLine();
+            }
+        } while (quantity < 1 || quantity > maxQuantity);
+        return quantity;
     }
 }

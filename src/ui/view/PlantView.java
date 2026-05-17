@@ -3,7 +3,7 @@ package ui.view;
 import java.util.List;
 import java.util.Scanner;
 
-import model.item.PlantSeed;
+import model.item.plantseed.PlantSeed;
 import util.ConsoleUtils;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;

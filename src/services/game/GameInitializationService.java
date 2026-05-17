@@ -3,31 +3,33 @@ package services.game;
 import java.util.Map;
 
 import command.Command;
-import model.Player;
+import registry.DevModeCommandRegistry;
+import registry.EventCommandRegistry;
+import services.repository.StoreRepository;
+import services.repository.UserRepository;
 import model.User;
-import services.StoreService;
-import services.UserRepository;
+import model.item.animalproduct.AnimalProductGradeRoller;
 import ui.view.AuthView;
-import util.ConsoleIO;
-import util.GradeUtils;
-import viewmodel.GameEvent;
-import viewmodel.MainViewModel;
+import util.ConsoleUtils;
+import model.player.Player;
+import model.GameEvent;
+import app.GameContext;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
 
 public class GameInitializationService {
-    private ConsoleIO io;
+    private ConsoleUtils consoleUtils;
     private User currentUser;
     private PlayerViewModel playerViewModel;
     private MapViewModel mapViewModel;
     private StoreViewModel storeViewModel;
-    private MainViewModel mainViewModel;
+    private GameContext mainViewModel;
     private Map<GameEvent, Command> eventCommands;
     private Map<Character, Command> devModeCommands;
 
     public void initialize() {
-        io = new ConsoleIO();
+        consoleUtils = new ConsoleUtils();
 
         authenticateUser();
         setupCore();
@@ -38,31 +40,31 @@ public class GameInitializationService {
 
     private void authenticateUser() {
         UserRepository userRepository = new UserRepository("system_data/users.txt");
-        AuthView authView = new AuthView(io.getScanner(), io.getConsoleUtils(), userRepository);
+        AuthView authView = new AuthView(consoleUtils.getScanner(), consoleUtils, userRepository);
         currentUser = authView.showMainMenu();
     }
 
     private void setupCore() {
         Player player = new Player(currentUser.getUsername(), "");
-        StoreService storeService = new StoreService();
-        GradeUtils gradeUtils = new GradeUtils(io.getRandom());
+        StoreRepository storeService = new StoreRepository();
+        AnimalProductGradeRoller gradeUtils = new AnimalProductGradeRoller(consoleUtils.getRandom());
 
         playerViewModel = new PlayerViewModel(player);
-        mapViewModel = new MapViewModel(playerViewModel, io.getRandom(), gradeUtils);
+        mapViewModel = new MapViewModel(playerViewModel, consoleUtils.getRandom(), gradeUtils);
         storeViewModel = new StoreViewModel(storeService, playerViewModel, mapViewModel, gradeUtils);
-        mainViewModel = new MainViewModel(playerViewModel, mapViewModel, storeViewModel);
+        mainViewModel = new GameContext(playerViewModel, mapViewModel, storeViewModel);
     }
 
     private void setupCommands() {
-        Views views = new Views(io.getScanner(), io.getConsoleUtils());
+        ViewRegistry views = new ViewRegistry(consoleUtils.getScanner(), consoleUtils);
         eventCommands = new EventCommandRegistry(
                 playerViewModel, mapViewModel, storeViewModel, mainViewModel, views).build();
         devModeCommands = new DevModeCommandRegistry(
                 currentUser, playerViewModel, mapViewModel, storeViewModel, views).build();
     }
 
-    public ConsoleIO getIO() {
-        return io;
+    public ConsoleUtils getIO() {
+        return consoleUtils;
     }
 
     public User getCurrentUser() {

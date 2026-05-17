@@ -5,21 +5,21 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import database.DatabaseRegistry;
+import store.GameCatalog;
 import factory.animal.AnimalFactoryProvider;
 import factory.plant.PlantFactoryProvider;
-import model.Player;
-import model.PlayerItem;
+import model.item.ItemStack;
 import model.User;
 import model.animal.Animal;
-import model.animal.AnimalProductKind;
-import model.item.AnimalProduct;
-import model.item.AnimalProductGrade;
-import model.item.FarmProduct;
-import model.item.PlantSeed;
-import model.item.Tool;
-import model.plants.Plant;
-import ui.view.MapBoard;
+import model.item.animalproduct.AnimalProduct;
+import model.item.animalproduct.AnimalProductDefinition;
+import model.item.animalproduct.AnimalProductGrade;
+import model.item.farmproduct.FarmProduct;
+import model.item.plantseed.PlantSeed;
+import model.item.tool.Tool;
+import model.plant.Plant;
+import model.player.Player;
+import model.map.MapBoardState;
 
 public class PlayerDataLoader {
 	private static final String DATA_DIR = "user_data";
@@ -85,11 +85,11 @@ public class PlayerDataLoader {
 		String toolName = parts[1];
 		int toolQuantity = Integer.parseInt(parts[2]);
 		int toolPrice = lookupToolPrice(toolName);
-		player.getInventory().add(new PlayerItem(new Tool(toolName, toolPrice), toolQuantity));
+		player.getInventory().add(new ItemStack(new Tool(toolName, toolPrice), toolQuantity));
 	}
 
 	private int lookupToolPrice(String toolName) {
-		for (Tool template : DatabaseRegistry.getList(Tool.class)) {
+		for (Tool template : GameCatalog.getTools()) {
 			if (template.getName().equals(toolName)) {
 				return (int) template.getPrice();
 			}
@@ -103,7 +103,7 @@ public class PlayerDataLoader {
 		char seedSymbol = parts[3].charAt(0);
 		int seedGrowthTime = Integer.parseInt(parts[4]);
 		int seedQuantity = Integer.parseInt(parts[5]);
-		player.getInventory().add(new PlayerItem(
+		player.getInventory().add(new ItemStack(
 			new PlantSeed(seedName, seedPrice, seedSymbol, seedGrowthTime),
 			seedQuantity
 		));
@@ -114,7 +114,7 @@ public class PlayerDataLoader {
 		double price = Double.parseDouble(parts[2]);
 		AnimalProductGrade grade = AnimalProductGrade.fromLevel(Integer.parseInt(parts[3]));
 		int quantity = Integer.parseInt(parts[4]);
-		player.getInventory().add(new PlayerItem(new AnimalProduct(name, (int) price, grade), quantity));
+		player.getInventory().add(new ItemStack(new AnimalProduct(name, (int) price, grade), quantity));
 	}
 
 	private void loadFarmProductLine(String[] parts) {
@@ -122,7 +122,7 @@ public class PlayerDataLoader {
 		double price = Double.parseDouble(parts[2]);
 		int freshness = Integer.parseInt(parts[3]);
 		int quantity = Integer.parseInt(parts[4]);
-		player.getInventory().add(new PlayerItem(new FarmProduct(name, price, freshness), quantity));
+		player.getInventory().add(new ItemStack(new FarmProduct(name, price, freshness), quantity));
 	}
 
 	private void loadAnimalLine(String[] parts) {
@@ -137,7 +137,7 @@ public class PlayerDataLoader {
 		boolean harvestable = Boolean.parseBoolean(parts[9]);
 
 		int defaultHarvestRate = lookupDefaultHarvestRate(type, harvestRate);
-		AnimalProductKind productKind = lookupAnimalProductKind(productName);
+		AnimalProductDefinition productKind = lookupAnimalProductKind(productName);
 
 		Animal animal = AnimalFactoryProvider.getFactory(type).createAnimal(
 			name,
@@ -150,11 +150,11 @@ public class PlayerDataLoader {
 			harvestable
 		);
 		player.getAnimals().add(animal);
-		MapBoard.placeAnimal(x, y, symbol);
+		MapBoardState.placeAnimal(x, y, symbol);
 	}
 
 	private int lookupDefaultHarvestRate(String type, int fallback) {
-		for (Animal template : DatabaseRegistry.getList(Animal.class)) {
+		for (Animal template : GameCatalog.getAnimals()) {
 			if (template.getType().equals(type)) {
 				return template.getDefaultHarvestRate();
 			}
@@ -162,13 +162,13 @@ public class PlayerDataLoader {
 		return fallback;
 	}
 
-	private AnimalProductKind lookupAnimalProductKind(String name) {
-		for (AnimalProductKind kind : DatabaseRegistry.getList(AnimalProductKind.class)) {
+	private AnimalProductDefinition lookupAnimalProductKind(String name) {
+		for (AnimalProductDefinition kind : GameCatalog.getAnimalProducts()) {
 			if (kind.getName().equals(name)) {
 				return kind;
 			}
 		}
-		return new AnimalProductKind(name, 0.0);
+		return new AnimalProductDefinition(name, 0.0);
 	}
 
 	private void loadPlantLine(String[] parts) {
@@ -181,6 +181,6 @@ public class PlayerDataLoader {
 		boolean harvestable = Boolean.parseBoolean(parts[7]);
 		Plant plant = PlantFactoryProvider.getFactory(name).createPlant(x, y, growthTime, price, harvestable);
 		player.getPlants().add(plant);
-		MapBoard.placePlant(x, y, symbol, harvestable);
+		MapBoardState.placePlant(x, y, symbol, harvestable);
 	}
 }

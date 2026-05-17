@@ -1,8 +1,8 @@
 package command.devmode;
 
 import command.Command;
-import database.DatabaseRegistry;
-import model.item.Tool;
+import model.item.tool.Tool;
+import store.GameCatalog;
 import viewmodel.PlayerViewModel;
 
 public class GiveAllToolsCommand implements Command {
@@ -14,7 +14,7 @@ public class GiveAllToolsCommand implements Command {
 
     @Override
     public void execute() {
-        for (Tool tool : DatabaseRegistry.getList(Tool.class)) {
+        for (Tool tool : GameCatalog.getTools()) {
             playerViewModel.addItem(new Tool(tool.getName(), (int) tool.getPrice()), 1);
         }
     }

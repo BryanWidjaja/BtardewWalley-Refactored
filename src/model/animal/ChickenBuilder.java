@@ -1,12 +1,13 @@
 package model.animal;
 
 import model.Coordinate;
+import model.item.animalproduct.AnimalProductDefinition;
 
 public class ChickenBuilder implements AnimalBuilder {
     private char symbol = 'c';
     private String name;
     private String type = "Chicken";
-    private AnimalProductKind animalProduct;
+    private AnimalProductDefinition animalProduct;
     private HarvestStats harvestStats;
     private Coordinate position;
     private double price;
@@ -18,7 +19,7 @@ public class ChickenBuilder implements AnimalBuilder {
     }
 
     @Override
-    public AnimalBuilder animalProduct(AnimalProductKind animalProduct) {
+    public AnimalBuilder animalProduct(AnimalProductDefinition animalProduct) {
         this.animalProduct = animalProduct;
         return this;
     }

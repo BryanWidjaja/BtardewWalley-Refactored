@@ -6,7 +6,7 @@ import command.buy.BuyAnimalCommand;
 import command.sell.SellAnimalCommand;
 import command.sell.SellAnimalProductCommand;
 import ui.menu.MenuComposite;
-import ui.menu.MenuItem;
+import ui.menu.MenuLeaf;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
@@ -22,25 +22,25 @@ public class AnimalStoreView {
 
     public void show(StoreViewModel storeViewModel, PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Animal Shop");
-        menu.add(new MenuItem("Buy Farm Animals", new BuyAnimalCommand(
+        menu.add(new MenuLeaf("Buy Farm Animals", new BuyAnimalCommand(
             storeViewModel,
             playerViewModel,
             scanner,
             consoleUtils
         )));
-        menu.add(new MenuItem("Sell Farm Animals", new SellAnimalCommand(
+        menu.add(new MenuLeaf("Sell Farm Animals", new SellAnimalCommand(
             storeViewModel,
             playerViewModel,
             scanner,
             consoleUtils
         )));
-        menu.add(new MenuItem("Sell Animal Products", new SellAnimalProductCommand(
+        menu.add(new MenuLeaf("Sell Animal Products", new SellAnimalProductCommand(
             storeViewModel,
             playerViewModel,
             scanner,
             consoleUtils
         )));
-        menu.add(new MenuItem("Exit", null));
+        menu.add(new MenuLeaf("Exit", null));
 
         while (true) {
             consoleUtils.spaceConsole();

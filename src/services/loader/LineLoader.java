@@ -2,9 +2,6 @@ package services.loader;
 
 import java.io.IOException;
 
-import util.FileLineReader;
-
-@FunctionalInterface
 public interface LineLoader {
     void load(String[] parts);
 

@@ -22,7 +22,7 @@ public class GameFacade {
         renderer = new GameRenderingService(
             initializer.getMapViewModel(),
             initializer.getPlayerViewModel(),
-            initializer.getIO().getConsoleUtils()
+            initializer.getIO()
         );
 
         interactionService = new GameInteractionService(
