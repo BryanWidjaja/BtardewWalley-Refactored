@@ -39,7 +39,7 @@ public abstract class SellItemCommand<T> implements Command {
             consoleUtils.spaceConsole();
             displayTitle();
             System.out.println();
-            System.out.printf("Money: $%d%n", playerViewModel.getMoney());
+            System.out.printf("Money: $%.2f%n", playerViewModel.getMoney());
             System.out.println();
 
             displayTable(items);
