@@ -40,13 +40,13 @@ public class MapViewModel {
         MOVE_DELTAS.put('d', new int[]{0, 1});
     }
 
-    private PlayerViewModel playerViewModel;
-    private Random random;
-    private AnimalProductGradeRoller gradeUtils;
+    private final PlayerViewModel playerViewModel;
+    private final Random random;
+    private final AnimalProductGradeRoller gradeUtils;
     private Animal pendingAnimal;
     private int pendingX;
     private int pendingY;
-    private Map<Integer, MapStrategy> eventStrategies;
+    private final Map<Integer, MapStrategy> eventStrategies;
 
     public MapViewModel(
         PlayerViewModel playerViewModel,
@@ -201,8 +201,7 @@ public class MapViewModel {
         Iterator<ItemStack> iterator = new ListIterator<>(playerViewModel.getInventory());
         while (iterator.hasNext()) {
             ItemStack item = iterator.getNext();
-            if (item.getItem() instanceof FarmProduct) {
-                FarmProduct farmProduct = (FarmProduct) item.getItem();
+            if (item.getItem() instanceof FarmProduct farmProduct) {
                 farmProduct.tickFreshness();
                 if (farmProduct.isExpired()) {
                     iterator.remove();
@@ -322,10 +321,10 @@ public class MapViewModel {
 
     public void devModeClearAllPlayers() {
         for (char[][] map : MapBoardState.getMaps()) {
-            for (int i = 0; i < map.length; i++) {
-                for (int j = 0; j < map[i].length; j++) {
-                    if (map[i][j] == MapBoardState.PLAYER_TILE) {
-                        map[i][j] = ' ';
+            for (char[] row : map) {
+                for (int j = 0; j < row.length; j++) {
+                    if (row[j] == MapBoardState.PLAYER_TILE) {
+                        row[j] = ' ';
                     }
                 }
             }

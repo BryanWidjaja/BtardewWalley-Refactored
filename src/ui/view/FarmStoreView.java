@@ -1,9 +1,8 @@
 package ui.view;
 
-import java.util.Scanner;
-
 import command.buy.BuySeedCommand;
 import command.sell.SellFarmProductCommand;
+import java.util.Scanner;
 import ui.menu.MenuComposite;
 import ui.menu.MenuLeaf;
 import util.ConsoleUtils;
@@ -11,8 +10,8 @@ import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
 
 public class FarmStoreView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
 
     public FarmStoreView(Scanner scanner, ConsoleUtils consoleUtils) {
         this.scanner = scanner;

@@ -4,8 +4,8 @@ import java.util.Scanner;
 import util.ConsoleUtils;
 
 public class SleepView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
 
     public SleepView(Scanner scanner, ConsoleUtils consoleUtils) {
         this.scanner = scanner;

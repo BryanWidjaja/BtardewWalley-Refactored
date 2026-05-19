@@ -2,7 +2,6 @@ package viewmodel;
 
 import java.util.List;
 import java.util.Locale;
-
 import model.Coordinate;
 import model.animal.Animal;
 import model.item.Item;
@@ -12,7 +11,7 @@ import model.plant.Plant;
 import model.player.Player;
 
 public class PlayerViewModel {
-    private Player player;
+    private final Player player;
 
     public PlayerViewModel(Player player) {
         this.player = player;

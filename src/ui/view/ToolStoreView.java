@@ -1,15 +1,14 @@
 package ui.view;
 
-import java.util.Scanner;
-
 import command.buy.BuyToolCommand;
+import java.util.Scanner;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
 
 public class ToolStoreView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
 
     public ToolStoreView(Scanner scanner, ConsoleUtils consoleUtils) {
         this.scanner = scanner;

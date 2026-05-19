@@ -1,9 +1,9 @@
 package model.player;
 
-import java.util.ArrayList;
-import java.util.List;
 import iterator.Iterator;
 import iterator.ListIterator;
+import java.util.ArrayList;
+import java.util.List;
 import model.animal.Animal;
 import model.item.Item;
 import model.item.ItemStack;
@@ -12,9 +12,9 @@ import model.item.tool.Tool;
 import model.plant.Plant;
 
 public class PlayerInventory {
-    private ArrayList<ItemStack> items;
-    private ArrayList<Animal> animals;
-    private ArrayList<Plant> plants;
+    private final ArrayList<ItemStack> items;
+    private final ArrayList<Animal> animals;
+    private final ArrayList<Plant> plants;
 
     public PlayerInventory() {
         this.items = new ArrayList<>();
@@ -81,8 +81,8 @@ public class PlayerInventory {
     public List<PlantSeed> getPlayerSeeds() {
         List<PlantSeed> seeds = new ArrayList<>();
         for (ItemStack item : items) {
-            if (item.getItem() instanceof PlantSeed) {
-                seeds.add((PlantSeed) item.getItem());
+            if (item.getItem() instanceof PlantSeed plantSeed) {
+                seeds.add(plantSeed);
             }
         }
         return seeds;

@@ -1,10 +1,9 @@
 package ui.view;
 
-import java.util.Scanner;
-
 import command.buy.BuyAnimalCommand;
 import command.sell.SellAnimalCommand;
 import command.sell.SellAnimalProductCommand;
+import java.util.Scanner;
 import ui.menu.MenuComposite;
 import ui.menu.MenuLeaf;
 import util.ConsoleUtils;
@@ -12,8 +11,8 @@ import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
 
 public class AnimalStoreView {
-    private Scanner scanner;
-    private ConsoleUtils consoleUtils;
+    private final Scanner scanner;
+    private final ConsoleUtils consoleUtils;
 
     public AnimalStoreView(Scanner scanner, ConsoleUtils consoleUtils) {
         this.scanner = scanner;

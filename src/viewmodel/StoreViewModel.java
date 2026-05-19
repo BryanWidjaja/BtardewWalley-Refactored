@@ -2,10 +2,9 @@ package viewmodel;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import model.item.ItemStack;
 import model.animal.Animal;
 import model.item.Item;
+import model.item.ItemStack;
 import model.item.animalproduct.AnimalProduct;
 import model.item.animalproduct.AnimalProductGradeRoller;
 import model.item.farmproduct.FarmProduct;
@@ -15,10 +14,10 @@ import model.map.MapBoardState;
 import services.repository.StoreRepository;
 
 public class StoreViewModel {
-    private StoreRepository storeService;
-    private PlayerViewModel playerViewModel;
-    private MapViewModel mapViewModel;
-    private AnimalProductGradeRoller gradeUtils;
+    private final StoreRepository storeService;
+    private final PlayerViewModel playerViewModel;
+    private final MapViewModel mapViewModel;
+    private final AnimalProductGradeRoller gradeUtils;
 
     public StoreViewModel(
         StoreRepository storeService,
@@ -152,12 +151,18 @@ public class StoreViewModel {
     }
 
     private double sellingPriceOf(Item item) {
-        if (item instanceof AnimalProduct) {
-            return ((AnimalProduct) item).getSellingPrice();
+        if (item == null) {
+            return 0;
         }
-        if (item instanceof FarmProduct) {
-            return ((FarmProduct) item).getSellingPrice();
+
+        if (item instanceof AnimalProduct animalProduct) {
+            return animalProduct.getSellingPrice();
         }
+
+        if (item instanceof FarmProduct farmProduct) {
+            return farmProduct.getSellingPrice();
+        }
+
         return item.getPrice();
     }
 }
