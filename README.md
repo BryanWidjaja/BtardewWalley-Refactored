@@ -1,7 +1,8 @@
 # Code Reengineering Final Project
 
 Based on https://github.com/BryanWidjaja/BtardewWalley
- 
+# Btardew Walley
+**Btardew Walley**, a terminal-based farming and animal husbandry simulator! Cultivate crops, raise livestock, and build a booming agricultural empire straight from your console.
 ---
 
 Our Group :
