@@ -16,7 +16,11 @@ public class GameContext {
     private StoreViewModel storeViewModel;
     private PlayerRepository persistenceService;
 
-    public GameContext(PlayerViewModel playerViewModel, MapViewModel mapViewModel, StoreViewModel storeViewModel) {
+    public GameContext(
+        PlayerViewModel playerViewModel,
+        MapViewModel mapViewModel,
+        StoreViewModel storeViewModel
+    ) {
         this.playerViewModel = playerViewModel;
         this.mapViewModel = mapViewModel;
         this.storeViewModel = storeViewModel;
@@ -40,8 +44,7 @@ public class GameContext {
         AnimalLoader.loadAvailableAnimals();
         SeedLoader.loadAvailableSeeds();
 
-        persistenceService = new PlayerRepository(
-                playerViewModel.getPlayer(), user);
+        persistenceService = new PlayerRepository(playerViewModel.getPlayer(), user);
         persistenceService.load();
     }
 

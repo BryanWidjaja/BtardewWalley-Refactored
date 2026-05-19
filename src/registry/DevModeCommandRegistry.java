@@ -49,7 +49,10 @@ public class DevModeCommandRegistry {
         commands.put('g', dev(new AdvanceManyDaysCommand(mapViewModel)));
         commands.put('u', dev(new GiveSampleAnimalsCommand(mapViewModel)));
         commands.put('t', dev(new GiveAllToolsCommand(playerViewModel)));
-        commands.put('p', dev(new GiveAnimalProductsCommand(playerViewModel, storeViewModel.getGradeUtils())));
+        commands.put('p', dev(new GiveAnimalProductsCommand(
+            playerViewModel,
+            storeViewModel.getGradeUtils()
+        )));
         commands.put('k', dev(new GiveAllSeedsCommand(playerViewModel)));
         commands.put('1', dev(new TeleportCommand(mapViewModel, PLANT_FARM_INDEX)));
         commands.put('2', dev(new TeleportCommand(mapViewModel, TOWN_INDEX)));

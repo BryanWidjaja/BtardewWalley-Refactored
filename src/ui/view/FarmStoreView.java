@@ -21,18 +21,24 @@ public class FarmStoreView {
 
     public void show(StoreViewModel storeViewModel, PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Farm Shop");
-        menu.add(new MenuLeaf("Buy Seeds", new BuySeedCommand(
-            storeViewModel,
-            playerViewModel,
-            scanner,
-            consoleUtils
-        )));
-        menu.add(new MenuLeaf("Sell Farm Products", new SellFarmProductCommand(
-            storeViewModel,
-            playerViewModel,
-            scanner,
-            consoleUtils
-        )));
+        menu.add(new MenuLeaf(
+            "Buy Seeds",
+            new BuySeedCommand(
+                storeViewModel,
+                playerViewModel,
+                scanner,
+                consoleUtils
+            )
+        ));
+        menu.add(new MenuLeaf(
+            "Sell Farm Products",
+            new SellFarmProductCommand(
+                storeViewModel,
+                playerViewModel,
+                scanner,
+                consoleUtils
+            )
+        ));
         menu.add(new MenuLeaf("Exit", null));
 
         while (true) {

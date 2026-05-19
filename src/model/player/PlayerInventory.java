@@ -8,6 +8,7 @@ import model.animal.Animal;
 import model.item.Item;
 import model.item.ItemStack;
 import model.item.plantseed.PlantSeed;
+import model.item.tool.Tool;
 import model.plant.Plant;
 
 public class PlayerInventory {
@@ -34,6 +35,13 @@ public class PlayerInventory {
     }
 
     public void addItem(Item newItem, int quantity) {
+        if (newItem instanceof Tool) {
+            if (hasItem(newItem.getName())) {
+                return;
+            }
+            items.add(new ItemStack(newItem, 1));
+            return;
+        }
         for (ItemStack existing : items) {
             if (existing.getItem().canStackWith(newItem)) {
                 existing.addQuantity(quantity);

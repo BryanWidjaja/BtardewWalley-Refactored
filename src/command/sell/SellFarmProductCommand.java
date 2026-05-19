@@ -79,13 +79,15 @@ public class SellFarmProductCommand extends SellItemCommand<ItemStack> {
         int quantity = -1;
         do {
             System.out.printf("How many items do you want to sell [1-%d]: ", maxQuantity);
-            if (sc.hasNextInt()) {
+
+            try {
                 quantity = sc.nextInt();
                 sc.nextLine();
-            } else {
+            } catch (Exception exception) {
                 sc.nextLine();
             }
         } while (quantity < 1 || quantity > maxQuantity);
+
         return quantity;
     }
 }

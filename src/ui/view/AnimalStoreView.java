@@ -22,24 +22,33 @@ public class AnimalStoreView {
 
     public void show(StoreViewModel storeViewModel, PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Animal Shop");
-        menu.add(new MenuLeaf("Buy Farm Animals", new BuyAnimalCommand(
-            storeViewModel,
-            playerViewModel,
-            scanner,
-            consoleUtils
-        )));
-        menu.add(new MenuLeaf("Sell Farm Animals", new SellAnimalCommand(
-            storeViewModel,
-            playerViewModel,
-            scanner,
-            consoleUtils
-        )));
-        menu.add(new MenuLeaf("Sell Animal Products", new SellAnimalProductCommand(
-            storeViewModel,
-            playerViewModel,
-            scanner,
-            consoleUtils
-        )));
+        menu.add(new MenuLeaf(
+            "Buy Farm Animals",
+            new BuyAnimalCommand(
+                storeViewModel,
+                playerViewModel,
+                scanner,
+                consoleUtils
+            )
+        ));
+        menu.add(new MenuLeaf(
+            "Sell Farm Animals",
+            new SellAnimalCommand(
+                storeViewModel,
+                playerViewModel,
+                scanner,
+                consoleUtils
+            )
+        ));
+        menu.add(new MenuLeaf(
+            "Sell Animal Products",
+            new SellAnimalProductCommand(
+                storeViewModel,
+                playerViewModel,
+                scanner,
+                consoleUtils
+            )
+        ));
         menu.add(new MenuLeaf("Exit", null));
 
         while (true) {

@@ -32,12 +32,22 @@ public class BuyToolCommand extends BuyItemCommand<Tool> {
     @Override
     protected void displayTable(List<Tool> items) {
         System.out.println("=================================");
-        System.out.printf("| %-3s | %-10s | %-10s |\n", "No.", "Name", "Price");
+        System.out.printf(
+            "| %-3s | %-10s | %-10s |\n",
+            "No.",
+            "Name",
+            "Price"
+        );
         System.out.println("=================================");
 
         int counter = 1;
         for (Tool tool : items) {
-            System.out.printf("| %-3s | %-10s | %-10s |\n", counter++, tool.getName(), tool.getPrice());
+            System.out.printf(
+                "| %-3s | %-10s | %-10s |\n",
+                counter++,
+                tool.getName(),
+                tool.getPrice()
+            );
         }
         System.out.println("=================================");
     }

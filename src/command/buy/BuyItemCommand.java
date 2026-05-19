@@ -1,9 +1,8 @@
 package command.buy;
 
+import command.Command;
 import java.util.List;
 import java.util.Scanner;
-
-import command.Command;
 import util.ConsoleUtils;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
@@ -37,7 +36,7 @@ public abstract class BuyItemCommand<T> implements Command {
             consoleUtils.spaceConsole();
             displayTitle();
             System.out.println();
-            System.out.println("Money: $" + playerViewModel.getMoney());
+            System.out.printf("Money: $%d%n", playerViewModel.getMoney());
             System.out.println();
 
             displayTable(items);
@@ -75,19 +74,27 @@ public abstract class BuyItemCommand<T> implements Command {
     }
 
     protected int getUserSelection(int maxChoice) {
-        System.out.print("Choose " + getItemTypeName() + " [" + (maxChoice > 0 ? "1-" + maxChoice : "0") + "] [0 to exit]: ");
-        if (!sc.hasNextInt()) {
+        System.out.printf(
+                "Choose %s [%s] [0 to exit]: ",
+                getItemTypeName(),
+                maxChoice > 0 ? "1-" + maxChoice : "0");
+
+        try {
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 0) {
+                return 0;
+            }
+
+            if (choice >= 1 && choice <= maxChoice) {
+                return choice;
+            }
+
+            return -1;
+        } catch (Exception exception) {
             sc.nextLine();
             return -2;
         }
-        int choice = sc.nextInt();
-        sc.nextLine();
-        if (choice == 0) {
-            return 0;
-        }
-        if (choice >= 1 && choice <= maxChoice) {
-            return choice;
-        }
-        return -1;
     }
 }

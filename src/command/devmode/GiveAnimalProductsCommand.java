@@ -14,7 +14,10 @@ public class GiveAnimalProductsCommand implements Command {
     private final PlayerViewModel playerViewModel;
     private final AnimalProductGradeRoller gradeUtils;
 
-    public GiveAnimalProductsCommand(PlayerViewModel playerViewModel, AnimalProductGradeRoller gradeUtils) {
+    public GiveAnimalProductsCommand(
+        PlayerViewModel playerViewModel,
+        AnimalProductGradeRoller gradeUtils
+    ) {
         this.playerViewModel = playerViewModel;
         this.gradeUtils = gradeUtils;
     }

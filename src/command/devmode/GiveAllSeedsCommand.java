@@ -18,7 +18,12 @@ public class GiveAllSeedsCommand implements Command {
     public void execute() {
         for (PlantSeed seed : GameCatalog.getSeeds()) {
             playerViewModel.addItem(
-                new PlantSeed(seed.getName(), seed.getPrice(), seed.getSymbol(), seed.getGrowthTime()),
+                new PlantSeed(
+                    seed.getName(),
+                    seed.getPrice(),
+                    seed.getSymbol(),
+                    seed.getGrowthTime()
+                ),
                 SEED_QUANTITY
             );
         }

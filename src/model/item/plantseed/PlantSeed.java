@@ -24,7 +24,13 @@ public class PlantSeed extends Item {
 
 	@Override
 	public String toString() {
-		return String.format("%s Seed [%c] (Growth: %d days) - $%.0f", getName(), symbol, growthTime, getPrice());
+		return String.format(
+			"%s Seed [%c] (Growth: %d days) - $%.0f",
+			getName(),
+			symbol,
+			growthTime,
+			getPrice()
+		);
 	}
 
 	@Override

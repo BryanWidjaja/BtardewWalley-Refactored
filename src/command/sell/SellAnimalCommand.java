@@ -37,7 +37,13 @@ public class SellAnimalCommand extends SellItemCommand<Animal> {
     @Override
     protected void displayTable(List<Animal> items) {
         System.out.println("===================================================");
-        System.out.printf("| %-3s | %-10s | %-15s | %-10s |\n", "No.", "Type", "Name", "Price");
+        System.out.printf(
+            "| %-3s | %-10s | %-15s | %-10s |\n",
+            "No.",
+            "Type",
+            "Name",
+            "Price"
+        );
         System.out.println("===================================================");
 
         int counter = 1;

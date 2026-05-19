@@ -23,11 +23,26 @@ public class InventoryView {
 
     public void show(PlayerViewModel playerViewModel) {
         MenuComposite menu = new MenuComposite("Inventory Menu");
-        menu.add(new MenuLeaf("View Animal Products", new ViewAnimalProductsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuLeaf("View Farm Products", new ViewFarmProductsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuLeaf("View Animals", new ViewAnimalsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuLeaf("View Tools", new ViewToolsCommand(playerViewModel, consoleUtils)));
-        menu.add(new MenuLeaf("View Plant Seeds", new ViewPlantSeedsCommand(playerViewModel, consoleUtils)));
+        menu.add(new MenuLeaf(
+            "View Animal Products",
+            new ViewAnimalProductsCommand(playerViewModel, consoleUtils)
+        ));
+        menu.add(new MenuLeaf(
+            "View Farm Products",
+            new ViewFarmProductsCommand(playerViewModel, consoleUtils)
+        ));
+        menu.add(new MenuLeaf(
+            "View Animals",
+            new ViewAnimalsCommand(playerViewModel, consoleUtils)
+        ));
+        menu.add(new MenuLeaf(
+            "View Tools",
+            new ViewToolsCommand(playerViewModel, consoleUtils)
+        ));
+        menu.add(new MenuLeaf(
+            "View Plant Seeds",
+            new ViewPlantSeedsCommand(playerViewModel, consoleUtils)
+        ));
         menu.add(new MenuLeaf("Exit", null));
 
         while (true) {

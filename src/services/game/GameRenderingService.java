@@ -25,7 +25,10 @@ public class GameRenderingService {
     public void render() {
         consoleUtils.spaceConsole();
         char[][] map = preparedMap();
-        char[][] infoPanel = HudView.buildInfoPanel(playerViewModel.getDay(), playerViewModel.getMoney());
+        char[][] infoPanel = HudView.buildInfoPanel(
+            playerViewModel.getDay(),
+            playerViewModel.getMoney()
+        );
         char[][] keybindPanel = HudView.PLAYER_KEYBINDS_UI;
 
         renderRows(map, infoPanel, keybindPanel);
@@ -62,7 +65,12 @@ public class GameRenderingService {
         }
     }
 
-    private void appendUIRow(StringBuilder line, char[][] infoPanel, char[][] keybindPanel, int row) {
+    private void appendUIRow(
+        StringBuilder line,
+        char[][] infoPanel,
+        char[][] keybindPanel,
+        int row
+    ) {
         if (row < infoPanel.length) {
             line.append(new String(infoPanel[row]));
         } else if (row == infoPanel.length) {

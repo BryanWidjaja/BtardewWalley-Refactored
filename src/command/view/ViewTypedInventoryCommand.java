@@ -9,7 +9,11 @@ import viewmodel.PlayerViewModel;
 public abstract class ViewTypedInventoryCommand<T extends Item> extends ViewItemsCommand<ItemStack> {
     private final Class<T> type;
 
-    public ViewTypedInventoryCommand(PlayerViewModel playerViewModel, ConsoleUtils consoleUtils, Class<T> type) {
+    public ViewTypedInventoryCommand(
+        PlayerViewModel playerViewModel,
+        ConsoleUtils consoleUtils,
+        Class<T> type
+    ) {
         super(playerViewModel, consoleUtils);
         this.type = type;
     }

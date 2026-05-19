@@ -30,7 +30,11 @@ public class TutorialView {
         }
     }
 
-    private static void renderPage(ConsoleUtils consoleUtils, List<String[]> pages, int currentPage) {
+    private static void renderPage(
+        ConsoleUtils consoleUtils,
+        List<String[]> pages,
+        int currentPage
+    ) {
         consoleUtils.spaceConsole();
         System.out.println("============================================================");
         System.out.println("               BTARDEW WALLEY - TUTORIAL");
@@ -38,11 +42,11 @@ public class TutorialView {
         System.out.println();
 
         String[] page = pages.get(currentPage);
-        System.out.println("  >> " + page[0] + " <<");
+        System.out.printf("  >> %s <<%n", page[0]);
         System.out.println("------------------------------------------------------------");
 
         for (int i = 1; i < page.length; i++) {
-            System.out.println("  " + page[i]);
+            System.out.printf("  %s%n", page[i]);
         }
 
         System.out.println();

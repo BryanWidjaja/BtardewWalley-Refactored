@@ -1,19 +1,18 @@
 package services.game;
 
-import java.util.Map;
-
+import app.GameContext;
 import command.Command;
+import java.util.Map;
+import model.GameEvent;
+import model.User;
+import model.item.animalproduct.AnimalProductGradeRoller;
+import model.player.Player;
 import registry.DevModeCommandRegistry;
 import registry.EventCommandRegistry;
 import services.repository.StoreRepository;
 import services.repository.UserRepository;
-import model.User;
-import model.item.animalproduct.AnimalProductGradeRoller;
 import ui.view.AuthView;
 import util.ConsoleUtils;
-import model.player.Player;
-import model.GameEvent;
-import app.GameContext;
 import viewmodel.MapViewModel;
 import viewmodel.PlayerViewModel;
 import viewmodel.StoreViewModel;
@@ -51,16 +50,31 @@ public class GameInitializationService {
 
         playerViewModel = new PlayerViewModel(player);
         mapViewModel = new MapViewModel(playerViewModel, consoleUtils.getRandom(), gradeUtils);
-        storeViewModel = new StoreViewModel(storeService, playerViewModel, mapViewModel, gradeUtils);
+        storeViewModel = new StoreViewModel(
+            storeService,
+            playerViewModel,
+            mapViewModel,
+            gradeUtils
+        );
         mainViewModel = new GameContext(playerViewModel, mapViewModel, storeViewModel);
     }
 
     private void setupCommands() {
         ViewRegistry views = new ViewRegistry(consoleUtils.getScanner(), consoleUtils);
         eventCommands = new EventCommandRegistry(
-                playerViewModel, mapViewModel, storeViewModel, mainViewModel, views).build();
+            playerViewModel,
+            mapViewModel,
+            storeViewModel,
+            mainViewModel,
+            views
+        ).build();
         devModeCommands = new DevModeCommandRegistry(
-                currentUser, playerViewModel, mapViewModel, storeViewModel, views).build();
+            currentUser,
+            playerViewModel,
+            mapViewModel,
+            storeViewModel,
+            views
+        ).build();
     }
 
     public ConsoleUtils getIO() {

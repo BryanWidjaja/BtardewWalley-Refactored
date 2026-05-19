@@ -48,7 +48,7 @@ public class MenuComposite implements MenuComponent {
             afterLabel.run();
         }
         for (int i = 0; i < children.size(); i++) {
-            System.out.println((i + 1) + ". " + children.get(i).getLabel());
+            System.out.printf("%d. %s%n", i + 1, children.get(i).getLabel());
         }
         System.out.print(">> ");
     }

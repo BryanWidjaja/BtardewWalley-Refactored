@@ -42,7 +42,11 @@ public class PlantView {
         }
 
         PlantSeed selectedSeed = playerSeeds.get(choice - 1);
-        mapViewModel.plantSeed(selectedSeed, mapViewModel.getPendingX(), mapViewModel.getPendingY());
+        mapViewModel.plantSeed(
+            selectedSeed,
+            mapViewModel.getPendingX(),
+            mapViewModel.getPendingY()
+        );
     }
 
     private void displaySeeds(List<PlantSeed> seeds, PlayerViewModel playerViewModel) {

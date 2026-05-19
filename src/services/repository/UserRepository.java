@@ -41,7 +41,8 @@ public class UserRepository {
 
     public User authenticate(String username, String password) {
         return loadAll().stream()
-                .filter(user -> user.getUsername().equals(username) && user.getPassword().equals(password))
+                .filter(user -> user.getUsername().equals(username)
+                        && user.getPassword().equals(password))
                 .findFirst()
                 .orElse(null);
     }

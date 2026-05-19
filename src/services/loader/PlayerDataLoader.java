@@ -83,9 +83,11 @@ public class PlayerDataLoader {
 
 	private void loadToolLine(String[] parts) {
 		String toolName = parts[1];
-		int toolQuantity = Integer.parseInt(parts[2]);
 		int toolPrice = lookupToolPrice(toolName);
-		player.getInventory().add(new ItemStack(new Tool(toolName, toolPrice), toolQuantity));
+		if (player.hasItem(toolName)) {
+			return;
+		}
+		player.getInventory().add(new ItemStack(new Tool(toolName, toolPrice), 1));
 	}
 
 	private int lookupToolPrice(String toolName) {
@@ -179,7 +181,13 @@ public class PlayerDataLoader {
 		int growthTime = Integer.parseInt(parts[5]);
 		double price = Double.parseDouble(parts[6]);
 		boolean harvestable = Boolean.parseBoolean(parts[7]);
-		Plant plant = PlantFactoryProvider.getFactory(name).createPlant(x, y, growthTime, price, harvestable);
+		Plant plant = PlantFactoryProvider.getFactory(name).createPlant(
+			x,
+			y,
+			growthTime,
+			price,
+			harvestable
+		);
 		player.getPlants().add(plant);
 		MapBoardState.placePlant(x, y, symbol, harvestable);
 	}

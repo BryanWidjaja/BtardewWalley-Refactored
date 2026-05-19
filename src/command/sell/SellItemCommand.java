@@ -39,7 +39,7 @@ public abstract class SellItemCommand<T> implements Command {
             consoleUtils.spaceConsole();
             displayTitle();
             System.out.println();
-            System.out.println("Money: $" + playerViewModel.getMoney());
+            System.out.printf("Money: $%d%n", playerViewModel.getMoney());
             System.out.println();
 
             displayTable(items);
@@ -58,6 +58,7 @@ public abstract class SellItemCommand<T> implements Command {
             } else {
                 System.out.println("Invalid choice!");
             }
+
             consoleUtils.pause();
         }
     }
@@ -70,19 +71,24 @@ public abstract class SellItemCommand<T> implements Command {
     protected abstract void performSale(int choice, T item);
 
     protected int getUserSelection(int maxChoice) {
-        System.out.print("Choose " + getItemTypeName() + " to sell [1-" + maxChoice + "] [0 to exit]: ");
-        if (!sc.hasNextInt()) {
+        System.out.printf("Choose %s to sell [1-%d] [0 to exit]: ", getItemTypeName(), maxChoice);
+
+        try {
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 0) {
+                return 0;
+            }
+
+            if (choice >= 1 && choice <= maxChoice) {
+                return choice;
+            }
+
+            return -1;
+        } catch (Exception exception) {
             sc.nextLine();
             return -2;
         }
-        int choice = sc.nextInt();
-        sc.nextLine();
-        if (choice == 0) {
-            return 0;
-        }
-        if (choice >= 1 && choice <= maxChoice) {
-            return choice;
-        }
-        return -1;
     }
 }

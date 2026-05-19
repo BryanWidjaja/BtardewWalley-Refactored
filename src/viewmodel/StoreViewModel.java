@@ -123,7 +123,10 @@ public class StoreViewModel {
 
         Animal selectedAnimal = animals.get(choice - 1);
         playerViewModel.addMoney(selectedAnimal.getPrice());
-        MapBoardState.clearAnimalAt(selectedAnimal.getPosition().getX(), selectedAnimal.getPosition().getY());
+        MapBoardState.clearAnimalAt(
+            selectedAnimal.getPosition().getX(),
+            selectedAnimal.getPosition().getY()
+        );
         animals.remove(selectedAnimal);
         return true;
     }

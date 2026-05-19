@@ -1,39 +1,36 @@
 package viewmodel;
 
+import factory.animal.AnimalFactoryProvider;
+import factory.plant.PlantFactoryProvider;
+import iterator.Iterator;
+import iterator.ListIterator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-
-import iterator.Iterator;
-import iterator.ListIterator;
-
-import store.GameCatalog;
-import factory.animal.AnimalFactoryProvider;
-import factory.plant.PlantFactoryProvider;
 import model.Coordinate;
 import model.GameEvent;
-import model.item.ItemStack;
 import model.animal.Animal;
+import model.item.ItemStack;
 import model.item.animalproduct.AnimalProduct;
 import model.item.animalproduct.AnimalProductGrade;
 import model.item.animalproduct.AnimalProductGradeRoller;
 import model.item.farmproduct.FarmProduct;
 import model.item.farmproduct.FarmProductFreshness;
 import model.item.plantseed.PlantSeed;
+import model.map.MapBoardState;
 import model.plant.Plant;
+import store.GameCatalog;
 import strategy.AnimalFarmMapStrategy;
 import strategy.FarmMapStrategy;
 import strategy.MapStrategy;
 import strategy.TownMapStrategy;
-import model.map.MapBoardState;
 
 public class MapViewModel {
     public static final String DEV_MODE_INPUT = "devmode";
     public static final Coordinate DEV_TELEPORT_DESTINATION = new Coordinate(10, 21);
     private static final String WALL_TILES = "#+-_|/\\\"'`:,";
-    private static final Set<Character> RESERVED_KEYS =
-            Set.of('r', 'g', 'u', 't', 'p', 'k', '1', '2', '3');
+    private static final Set<Character> RESERVED_KEYS = Set.of('r', 'g', 'u', 't', 'p', 'k', '1', '2', '3');
 
     private static final Map<Character, int[]> MOVE_DELTAS = new HashMap<>();
     static {
@@ -51,7 +48,11 @@ public class MapViewModel {
     private int pendingY;
     private Map<Integer, MapStrategy> eventStrategies;
 
-    public MapViewModel(PlayerViewModel playerViewModel, Random random, AnimalProductGradeRoller gradeUtils) {
+    public MapViewModel(
+        PlayerViewModel playerViewModel,
+        Random random,
+        AnimalProductGradeRoller gradeUtils
+    ) {
         this.playerViewModel = playerViewModel;
         this.random = random;
         this.gradeUtils = gradeUtils;

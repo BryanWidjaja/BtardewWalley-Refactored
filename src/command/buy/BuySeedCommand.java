@@ -32,7 +32,13 @@ public class BuySeedCommand extends BuyItemCommand<PlantSeed> {
     @Override
     protected void displayTable(List<PlantSeed> items) {
         System.out.println("================================================");
-        System.out.printf("| %-3s | %-10s | %-12s | %-10s |\n", "No.", "Name", "Growth Time", "Price");
+        System.out.printf(
+            "| %-3s | %-10s | %-12s | %-10s |\n",
+            "No.",
+            "Name",
+            "Growth Time",
+            "Price"
+        );
         System.out.println("================================================");
 
         int counter = 1;
